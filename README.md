@@ -11,7 +11,7 @@
 **Open-source companion for:** researchers · graduate students · competition teams · knowledge workers who need more than a bookmark manager
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/OpenCoworkAI/open-codesign/main/website/public/screenshots/product-hero.png" alt="Gist — research companion iOS app" width="400" />
+  <img src="docs/assets/screenshots/home-workbench.png" alt="Gist — iOS research companion home workbench" width="320" />
 </p>
 
 <p align="center">
@@ -60,34 +60,32 @@ A single iOS app that replaces the scattered workflow of managing research mater
 <table>
   <tr>
     <td width="50%">
-      <p><b>🏠 Home workbench.</b><br/>Greeting + date, upcoming competition deadlines, unread count, recent reads, inspiration revisit, pending AI interpretation, active projects — all on one scroll.</p>
+      <img src="docs/assets/screenshots/home-workbench.png" alt="Home workbench with greeting, unread count, recent reads, insight replay" />
+      <p><b>🏠 Home workbench.</b><br/>Greeting + date, competition deadlines, unread count, recent reads, inspiration revisit, pending AI — all on one scroll.</p>
     </td>
     <td width="50%">
-      <p><b>📚 Library directory.</b><br/>Status buckets (unread / all / today / starred / interpreted / annotated), project cards with stats, tag capsules. Every dimension navigable.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <p><b>🔍 Explore with context.</b><br/>When your library has material, Explore suggests similar papers and competitions based on what you've already collected. Empty? It tells you so instead of showing noise.</p>
-    </td>
-    <td width="50%">
-      <p><b>🧠 Five data types.</b><br/>Paper (DOI / arXiv / authors / venue), article (URL + source), competition (deadline / stage / checklist), voice (transcript + duration), insight (free-form). Each with its own form and detail view.</p>
+      <img src="docs/assets/screenshots/library-directory.png" alt="Library directory with status buckets, projects, and tags" />
+      <p><b>📚 Library directory.</b><br/>Status buckets, project cards with stats, tag capsules. Every dimension navigable.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <p><b>📁 Project aggregation.</b><br/>Group materials into projects. Each project gets: research background + questions, segmented material browser, competition node summary, AI project summary placeholder, todo list with check-off.</p>
+      <img src="docs/assets/screenshots/explore-root.png" alt="Explore page with context-aware recommendations" />
+      <p><b>🔍 Explore with context.</b><br/>Suggests similar papers and competitions based on your library. Empty? Shows a quiet empty state instead of noise.</p>
     </td>
     <td width="50%">
-      <p><b>🎨 Design system from day one.</b><br/><code>GistTheme</code> — colors, fonts, spacing, radius, icons, card modifier. Every view consumes it via <code>@Environment</code>. Dark-only palette: cool blue accent on deep gray background.</p>
+      <img src="docs/assets/screenshots/new-item-sheet.png" alt="New item sheet with five data types to choose from" />
+      <p><b>🧠 Five data types.</b><br/>Paper, article, competition, voice, insight — each with its own form and detail view.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <p><b>✨ Smart inspiration replay.</b><br/>The home page "灵感漫游" card uses a weighted random algorithm — newer and starred insights surface more often, but old ones still get their moment.</p>
+      <img src="docs/assets/screenshots/project-detail.png" alt="Project detail with material aggregation, todos, and research background" />
+      <p><b>📁 Project aggregation.</b><br/>Research background, segmented material browser, competition nodes, AI summary placeholder, check-off todos.</p>
     </td>
     <td width="50%">
-      <p><b>🔧 Acceptance-testable.</b><br/>Launch configuration system lets you seed data, set initial routes, preload tab stacks, auto-open items. Built for demo and QA, not just development.</p>
+      <img src="docs/assets/screenshots/detail-paper.png" alt="Paper detail with metadata, structured reading card, and AI interpretation" />
+      <p><b>📄 Rich detail views.</b><br/>Type-specific metadata (DOI / arXiv / deadline / transcript), star toggle, annotation support, AI interpretation entry point.</p>
     </td>
   </tr>
 </table>
@@ -135,7 +133,7 @@ GistApp/
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-org/Gist.git
+git clone git@github.com:AI4Research-Gist/GIST-IOS-APP.git
 cd Gist/GistApp
 ```
 

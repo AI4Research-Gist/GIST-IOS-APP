@@ -1,0 +1,131 @@
+import DesignSystem
+import Env
+import SwiftUI
+
+extension StatusEditor {
+  @MainActor
+  struct PollView: View {
+    enum FocusField: Hashable {
+      case option(Int)
+    }
+
+    @FocusState var focused: FocusField?
+
+    @State private var currentFocusIndex: Int = 0
+
+    @Environment(Theme.self) private var theme
+    @Environment(CurrentInstance.self) private var currentInstance
+
+    var store: EditorStore
+
+    @Binding var showPoll: Bool
+
+    var body: some View {
+      contentView
+        .background(
+          RoundedRectangle(cornerRadius: 6.0)
+            .stroke(theme.secondaryBackgroundColor.opacity(0.6), lineWidth: 1)
+            .background(theme.primaryBackgroundColor.opacity(0.3))
+        )
+    }
+    
+    @ViewBuilder
+    private var contentView: some View {
+      @Bindable var store = store
+      let count = store.pollOptions.count
+      VStack {
+        ForEach(0..<count, id: \.self) { index in
+          VStack {
+            HStack(spacing: 16) {
+              TextField("status.poll.option-n \(index + 1)", text: $store.pollOptions[index])
+                .textFieldStyle(.roundedBorder)
+                .focused($focused, equals: .option(index))
+                .onTapGesture {
+                  if canAddMoreAt(index) {
+                    currentFocusIndex = index
+                  }
+                }
+                .onSubmit {
+                  if canAddMoreAt(index) {
+                    addChoice(at: index)
+                  }
+                }
+
+              if canAddMoreAt(index) {
+                Button {
+                  addChoice(at: index)
+                } label: {
+                  Image(systemName: "plus.circle.fill")
+                }
+              } else {
+                Button {
+                  removeChoice(at: index)
+                } label: {
+                  Image(systemName: "minus.circle.fill")
+                }
+              }
+            }
+            .padding(.horizontal)
+            .padding(.top)
+          }
+        }
+        .onAppear {
+          focused = .option(0)
+        }
+
+        HStack {
+          Picker("status.poll.frequency", selection: $store.pollVotingFrequency) {
+            ForEach(PollVotingFrequency.allCases, id: \.rawValue) {
+              Text($0.displayString)
+                .tag($0)
+            }
+          }
+          .layoutPriority(1.0)
+
+          Spacer()
+
+          Picker("status.poll.duration", selection: $store.pollDuration) {
+            ForEach(Duration.pollDurations(), id: \.rawValue) {
+              Text($0.description)
+                .tag($0)
+            }
+          }
+        }
+        .padding(.leading, 9)
+        .padding(.trailing, 34)
+        .padding(.vertical, 8)
+      }
+    }
+
+    private func addChoice(at index: Int) {
+      store.pollOptions.append("")
+      currentFocusIndex = index + 1
+      moveFocus()
+    }
+
+    private func removeChoice(at index: Int) {
+      store.pollOptions.remove(at: index)
+
+      if store.pollOptions.count == 1 {
+        store.resetPollDefaults()
+
+        withAnimation {
+          showPoll = false
+        }
+      }
+    }
+
+    private func moveFocus() {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+        focused = .option(currentFocusIndex)
+      }
+    }
+
+    private func canAddMoreAt(_ index: Int) -> Bool {
+      let count = store.pollOptions.count
+      let maxEntries: Int = currentInstance.instance?.configuration?.polls.maxOptions ?? 4
+
+      return index == count - 1 && count < maxEntries
+    }
+  }
+}

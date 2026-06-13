@@ -1,0 +1,441 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		10FB952700384CB585DBD5EE /* ResearchItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A8EFDCB1E04007A7F1D056 /* ResearchItemListView.swift */; };
+		13030D6C08BD48D5A15F673E /* GistAppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B9DA43ABA041BAB2EEE74B /* GistAppRootView.swift */; };
+		186AD52C9DFB4C8E9492F5C0 /* GistToastOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1AAD925CE4EC8BBC21181 /* GistToastOverlayView.swift */; };
+		2CD1A5B361FE4EAFAC431A05 /* LibraryDirectoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5FCA320B1A4C0CAAABCFD6 /* LibraryDirectoryView.swift */; };
+		2DD4791ABC5E447BB3906250 /* NewItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8357135A219A4EEA927DFC1E /* NewItemSheet.swift */; };
+		4DEAA1A2952C432CB85CB2FB /* GistToastCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30B6542554842259860B10B /* GistToastCenter.swift */; };
+		5234867344E94329A7ED5E8F /* GistModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4CF760EC7534F2E89010D38 /* GistModelContainer.swift */; };
+		65DC7ACCBEF34500A9D1B7D7 /* GistRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469C6C45C814010808529FC /* GistRepositories.swift */; };
+		7274D9039B214E3AA58F65BE /* ResearchItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FEBE0D93F8428AB6004758 /* ResearchItemDetailView.swift */; };
+		887C254E3BF84209BBD2E09C /* GistModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6405229960F844968712FCC0 /* GistModels.swift */; };
+		8FD0F80CF4D14EC69C318356 /* GistNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBCAF540204C87AD790482 /* GistNavigation.swift */; };
+		A8945AD36C5449E2A6A9621B /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC414A8BD6B46B1B4C9BAC4 /* ProjectDetailView.swift */; };
+		B7D2AA4215D943CB814B3C08 /* HomeWorkbenchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04046DCA76D409088D3410D /* HomeWorkbenchView.swift */; };
+		BB2EBA403EC74F66A3B7D8F8 /* GistApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BEF7C4BB934A9ABCCEA7FF /* GistApp.swift */; };
+		CC1ED3226CBC40CD80C06541 /* EditProjectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EA6FA3682841AEB887EE66 /* EditProjectSheet.swift */; };
+		CD3355D214314E79B69BFE6E /* ProjectAddItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6531E779FC264A12A029D99C /* ProjectAddItemSheet.swift */; };
+		CF836B78CF5D4DC0A9711A5D /* GistLaunchSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21DB0ADFD542AAAE31471D /* GistLaunchSupport.swift */; };
+		DB9B70ADCC43473289164FEB /* ResearchItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE87FC7ADA1342ADBCBE7086 /* ResearchItemRow.swift */; };
+		DFB0E2FFEF704DDEAA566DEC /* ExploreRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6527BD41E46D7ABFA7DC9 /* ExploreRootView.swift */; };
+		F532C133D61D400AB4544870 /* GistTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF8EBB988DD4111BE2A217F /* GistTheme.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1D5FCA320B1A4C0CAAABCFD6 /* LibraryDirectoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDirectoryView.swift; sourceTree = "<group>"; };
+		2469C6C45C814010808529FC /* GistRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistRepositories.swift; sourceTree = "<group>"; };
+		41EA6FA3682841AEB887EE66 /* EditProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectSheet.swift; sourceTree = "<group>"; };
+		46A8EFDCB1E04007A7F1D056 /* ResearchItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchItemListView.swift; sourceTree = "<group>"; };
+		6405229960F844968712FCC0 /* GistModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistModels.swift; sourceTree = "<group>"; };
+		6531E779FC264A12A029D99C /* ProjectAddItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAddItemSheet.swift; sourceTree = "<group>"; };
+		6AC414A8BD6B46B1B4C9BAC4 /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
+		8357135A219A4EEA927DFC1E /* NewItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewItemSheet.swift; sourceTree = "<group>"; };
+		92C5AE5301974F18992D0D80 /* GistApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GistApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F21DB0ADFD542AAAE31471D /* GistLaunchSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistLaunchSupport.swift; sourceTree = "<group>"; };
+		A4CF760EC7534F2E89010D38 /* GistModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistModelContainer.swift; sourceTree = "<group>"; };
+		A8BEF7C4BB934A9ABCCEA7FF /* GistApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistApp.swift; sourceTree = "<group>"; };
+		BBC1AAD925CE4EC8BBC21181 /* GistToastOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistToastOverlayView.swift; sourceTree = "<group>"; };
+		C04046DCA76D409088D3410D /* HomeWorkbenchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeWorkbenchView.swift; sourceTree = "<group>"; };
+		C4BBCAF540204C87AD790482 /* GistNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistNavigation.swift; sourceTree = "<group>"; };
+		C6FEBE0D93F8428AB6004758 /* ResearchItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchItemDetailView.swift; sourceTree = "<group>"; };
+		CE87FC7ADA1342ADBCBE7086 /* ResearchItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchItemRow.swift; sourceTree = "<group>"; };
+		D2B9DA43ABA041BAB2EEE74B /* GistAppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistAppRootView.swift; sourceTree = "<group>"; };
+		E2A6527BD41E46D7ABFA7DC9 /* ExploreRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreRootView.swift; sourceTree = "<group>"; };
+		E30B6542554842259860B10B /* GistToastCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistToastCenter.swift; sourceTree = "<group>"; };
+		EBF8EBB988DD4111BE2A217F /* GistTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GistTheme.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0A40C89BBBE447ABA52A5FB1 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				C4BBCAF540204C87AD790482 /* GistNavigation.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		0C79215272D14368B314EEFA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6405229960F844968712FCC0 /* GistModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1633FECA412B4C27B1AE929F /* Explore */ = {
+			isa = PBXGroup;
+			children = (
+				E2A6527BD41E46D7ABFA7DC9 /* ExploreRootView.swift */,
+			);
+			path = Explore;
+			sourceTree = "<group>";
+		};
+		2BD8BD3520A04C10B2C49B64 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				CE87FC7ADA1342ADBCBE7086 /* ResearchItemRow.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		3590F88883E14964A3635A8A = {
+			isa = PBXGroup;
+			children = (
+				D1675862AB434ABA93C3D50D /* GistApp */,
+				3C3055A97DC547AA9A1C1BC2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3C3055A97DC547AA9A1C1BC2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				92C5AE5301974F18992D0D80 /* GistApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		49880FBB9F0F419782C463CD /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				AD40C814CB504B5DA18BD61C /* Home */,
+				CB952905CFD9446F97060BEA /* Library */,
+				AD07150ED0564F67969A2929 /* Detail */,
+				1633FECA412B4C27B1AE929F /* Explore */,
+				EE4674AAA8F54CE0B26E133A /* NewItem */,
+				775D502BE90E480CB768787C /* Projects */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		5167C00942C542D7AECCBC43 /* Toast */ = {
+			isa = PBXGroup;
+			children = (
+				E30B6542554842259860B10B /* GistToastCenter.swift */,
+				BBC1AAD925CE4EC8BBC21181 /* GistToastOverlayView.swift */,
+			);
+			path = Toast;
+			sourceTree = "<group>";
+		};
+		6C14838C091D464384BD1EFB /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				2469C6C45C814010808529FC /* GistRepositories.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		7220D6F10FE24F01B6631BAE /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				A4CF760EC7534F2E89010D38 /* GistModelContainer.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		775D502BE90E480CB768787C /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				41EA6FA3682841AEB887EE66 /* EditProjectSheet.swift */,
+				6531E779FC264A12A029D99C /* ProjectAddItemSheet.swift */,
+				6AC414A8BD6B46B1B4C9BAC4 /* ProjectDetailView.swift */,
+			);
+			path = Projects;
+			sourceTree = "<group>";
+		};
+		9A22C55F951D4771B8719B7D /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				EBF8EBB988DD4111BE2A217F /* GistTheme.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		A156E3E106AE44F58DC42B5C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A8BEF7C4BB934A9ABCCEA7FF /* GistApp.swift */,
+				D2B9DA43ABA041BAB2EEE74B /* GistAppRootView.swift */,
+				9F21DB0ADFD542AAAE31471D /* GistLaunchSupport.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AD07150ED0564F67969A2929 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				C6FEBE0D93F8428AB6004758 /* ResearchItemDetailView.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		AD40C814CB504B5DA18BD61C /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				C04046DCA76D409088D3410D /* HomeWorkbenchView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		AD4EAEA3806C4BD2AAA91B73 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				2BD8BD3520A04C10B2C49B64 /* Components */,
+				5167C00942C542D7AECCBC43 /* Toast */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		CB952905CFD9446F97060BEA /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				1D5FCA320B1A4C0CAAABCFD6 /* LibraryDirectoryView.swift */,
+				46A8EFDCB1E04007A7F1D056 /* ResearchItemListView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		D1675862AB434ABA93C3D50D /* GistApp */ = {
+			isa = PBXGroup;
+			children = (
+				A156E3E106AE44F58DC42B5C /* App */,
+				9A22C55F951D4771B8719B7D /* DesignSystem */,
+				0C79215272D14368B314EEFA /* Models */,
+				7220D6F10FE24F01B6631BAE /* Persistence */,
+				6C14838C091D464384BD1EFB /* Repositories */,
+				0A40C89BBBE447ABA52A5FB1 /* Navigation */,
+				49880FBB9F0F419782C463CD /* Features */,
+				AD4EAEA3806C4BD2AAA91B73 /* Shared */,
+			);
+			path = GistApp;
+			sourceTree = "<group>";
+		};
+		EE4674AAA8F54CE0B26E133A /* NewItem */ = {
+			isa = PBXGroup;
+			children = (
+				8357135A219A4EEA927DFC1E /* NewItemSheet.swift */,
+			);
+			path = NewItem;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		57FAA89636D744C5823414AB /* GistApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6560903C9FA42CEA04C0C2A /* Build configuration list for PBXNativeTarget "GistApp" */;
+			buildPhases = (
+				177D46D25A2A4A00A0505824 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GistApp;
+			productName = GistApp;
+			productReference = 92C5AE5301974F18992D0D80 /* GistApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5EA31BF1455749208F0BFDB4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					57FAA89636D744C5823414AB = {
+						CreatedOnToolsVersion = 16.4;
+					};
+				};
+			};
+			buildConfigurationList = 129D5B9FD4E54E58B36A34E5 /* Build configuration list for PBXProject "GistApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = 3590F88883E14964A3635A8A;
+			productRefGroup = 3C3055A97DC547AA9A1C1BC2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				57FAA89636D744C5823414AB /* GistApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		177D46D25A2A4A00A0505824 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB2EBA403EC74F66A3B7D8F8 /* GistApp.swift in Sources */,
+				13030D6C08BD48D5A15F673E /* GistAppRootView.swift in Sources */,
+				CF836B78CF5D4DC0A9711A5D /* GistLaunchSupport.swift in Sources */,
+				F532C133D61D400AB4544870 /* GistTheme.swift in Sources */,
+				7274D9039B214E3AA58F65BE /* ResearchItemDetailView.swift in Sources */,
+				DFB0E2FFEF704DDEAA566DEC /* ExploreRootView.swift in Sources */,
+				B7D2AA4215D943CB814B3C08 /* HomeWorkbenchView.swift in Sources */,
+				2CD1A5B361FE4EAFAC431A05 /* LibraryDirectoryView.swift in Sources */,
+				10FB952700384CB585DBD5EE /* ResearchItemListView.swift in Sources */,
+				2DD4791ABC5E447BB3906250 /* NewItemSheet.swift in Sources */,
+				CC1ED3226CBC40CD80C06541 /* EditProjectSheet.swift in Sources */,
+				CD3355D214314E79B69BFE6E /* ProjectAddItemSheet.swift in Sources */,
+				A8945AD36C5449E2A6A9621B /* ProjectDetailView.swift in Sources */,
+				887C254E3BF84209BBD2E09C /* GistModels.swift in Sources */,
+				8FD0F80CF4D14EC69C318356 /* GistNavigation.swift in Sources */,
+				5234867344E94329A7ED5E8F /* GistModelContainer.swift in Sources */,
+				65DC7ACCBEF34500A9D1B7D7 /* GistRepositories.swift in Sources */,
+				DB9B70ADCC43473289164FEB /* ResearchItemRow.swift in Sources */,
+				4DEAA1A2952C432CB85CB2FB /* GistToastCenter.swift in Sources */,
+				186AD52C9DFB4C8E9492F5C0 /* GistToastOverlayView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1174E2AF43704FF7A1A2EF5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y7C36RAMV4;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GistApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oujiazhan.GistJianYan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		6D90DC2085BA4E6DA5F9EA11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		71F1755CABF243ECBE632FCA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y7C36RAMV4;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GistApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oujiazhan.GistJianYan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		757F60266274438D9AA023A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		129D5B9FD4E54E58B36A34E5 /* Build configuration list for PBXProject "GistApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D90DC2085BA4E6DA5F9EA11 /* Debug */,
+				757F60266274438D9AA023A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6560903C9FA42CEA04C0C2A /* Build configuration list for PBXNativeTarget "GistApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1174E2AF43704FF7A1A2EF5C /* Debug */,
+				71F1755CABF243ECBE632FCA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5EA31BF1455749208F0BFDB4 /* Project object */;
+}

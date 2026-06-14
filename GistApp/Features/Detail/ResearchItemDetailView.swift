@@ -410,6 +410,7 @@ struct ResearchItemDetailView: View {
         .foregroundStyle(theme.colors.textPrimary)
       infoRow("截止时间", item.competitionDeadline?.formatted(.dateTime.month().day().hour().minute()) ?? "未设置")
       infoRow("阶段", item.competitionStageRaw ?? "未设置")
+      infoRow("官网链接", item.competitionURL ?? item.sourceURL ?? "未填写")
       infoRow("提交材料", item.competitionSubmissionItems?.joined(separator: "、") ?? "未填写")
       infoRow("评分要点", item.competitionScoringPoints?.joined(separator: "、") ?? "未填写")
     }

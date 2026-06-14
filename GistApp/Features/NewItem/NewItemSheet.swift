@@ -461,18 +461,20 @@ struct CompetitionReviewSheet: View {
   }
 
   private func saveCompetition(from result: CompetitionExtractionResult) {
+    let normalizedSourceURL = result.officialURL
+      ?? emptyToNil(sourceURL)
     let item = ResearchItem(
       title: result.competitionName ?? "未命名竞赛",
       itemType: .competition
     )
     item.summary = result.eligibility?.description ?? "由 mock 竞赛抽取任务生成"
-    item.sourceURL = sourceURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : sourceURL
-    item.sourceName = "Competition Review"
+    item.sourceURL = normalizedSourceURL
+    item.sourceName = normalizedSourceURL.flatMap { URL(string: $0)?.host() } ?? "Competition Review"
     item.fullText = rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       ? (item.summary ?? "由 mock 竞赛抽取任务生成")
       : rawText.trimmingCharacters(in: .whitespacesAndNewlines)
     item.competitionStage = .collecting
-    item.competitionURL = result.officialURL ?? item.sourceURL
+    item.competitionURL = normalizedSourceURL
     item.competitionSubmissionItems = result.submissionRequirements?.map(\.item)
     item.competitionScoringPoints = result.scoringCriteria?.map {
       if let weight = $0.weight, !weight.isEmpty {

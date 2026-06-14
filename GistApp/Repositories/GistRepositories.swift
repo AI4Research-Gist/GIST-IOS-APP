@@ -217,12 +217,14 @@ final class ProjectRepository {
 
   func stats(for project: Project) -> ProjectStats {
     let items = project.researchItems ?? []
+    let latestItem = items.max { $0.updatedAt < $1.updatedAt }
     return ProjectStats(
       totalCount: items.count,
       unreadCount: items.filter { $0.readingStatusRaw == "unread" }.count,
       competitionCount: items.filter { $0.itemTypeRaw == "competition" }.count,
       artifactCount: items.reduce(0) { $0 + $1.storedArtifacts.count },
-      lastUpdatedAt: items.map(\.updatedAt).max() ?? project.updatedAt
+      lastUpdatedAt: latestItem?.updatedAt ?? project.updatedAt,
+      latestItemTitle: latestItem?.title
     )
   }
 }
@@ -233,6 +235,7 @@ struct ProjectStats {
   var competitionCount: Int
   var artifactCount: Int
   var lastUpdatedAt: Date
+  var latestItemTitle: String?
 }
 
 @MainActor

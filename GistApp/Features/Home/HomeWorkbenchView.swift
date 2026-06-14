@@ -303,6 +303,12 @@ private struct HomeProjectCard: View {
               Text("未读 \(stats.unreadCount) · 竞赛 \(stats.competitionCount) · 产出 \(stats.artifactCount)")
                 .font(theme.fonts.caption2)
                 .foregroundStyle(theme.colors.textTertiary)
+              if let latestItemTitle = stats.latestItemTitle {
+                Text("最近进展：\(latestItemTitle)")
+                  .font(theme.fonts.caption2)
+                  .foregroundStyle(theme.colors.textSecondary)
+                  .lineLimit(1)
+              }
             }
           }
           .buttonStyle(.plain)

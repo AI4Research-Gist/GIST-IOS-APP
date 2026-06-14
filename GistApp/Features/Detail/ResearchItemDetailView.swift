@@ -214,9 +214,17 @@ struct ResearchItemDetailView: View {
             .buttonStyle(.plain)
           }
         } else {
-          Text("尚未归入项目。")
-            .font(theme.fonts.callout)
-            .foregroundStyle(theme.colors.textSecondary)
+          VStack(alignment: .leading, spacing: theme.spacing.sm) {
+            Text("尚未归入项目。")
+              .font(theme.fonts.callout)
+              .foregroundStyle(theme.colors.textSecondary)
+            Text("归入项目后，首页项目进展与项目页聚合会开始反馈这条资料。")
+              .font(theme.fonts.footnote)
+              .foregroundStyle(theme.colors.textTertiary)
+            projectAssignmentMenu(for: item)
+              .font(theme.fonts.footnote)
+              .foregroundStyle(theme.colors.textLink)
+          }
         }
         if let tags = item.tags, !tags.isEmpty {
           Text(tags.map(\.name).joined(separator: " · "))

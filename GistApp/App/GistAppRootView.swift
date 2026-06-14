@@ -198,6 +198,19 @@ private struct GistRootContentView: View {
       if let itemID = resolveItemID(for: itemType, snapshot: snapshot, itemRepository: itemRepository) {
         router.navigateToItem(itemID)
       }
+    case .itemAIWorkspace(let itemType):
+      if let itemID = resolveItemID(for: itemType, snapshot: snapshot, itemRepository: itemRepository) {
+        router.navigateToItem(itemID)
+        sheetManager.present(.aiInterpretation(itemID: itemID))
+      }
+    case .competitionReview:
+      sheetManager.present(
+        .competitionReview(
+          projectID: nil,
+          rawText: "Agent Research Demo Challenge 2026: 请提交五分钟演示视频、项目说明 PDF 与代码仓库链接，报名截止下周五 23:59。",
+          sourceURL: "https://example.com/agent-demo-challenge"
+        )
+      )
     case .projectDetail:
       if let projectID = resolveProjectID(snapshot: snapshot, projectRepository: projectRepository) {
         router.navigateToProject(projectID)

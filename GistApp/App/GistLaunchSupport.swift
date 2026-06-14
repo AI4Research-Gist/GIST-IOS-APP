@@ -73,6 +73,8 @@ enum GistSeedProfile: Equatable {
 enum GistLaunchRoute: Equatable {
   case libraryList(GistLibraryDimension)
   case itemDetail(ResearchItemType)
+  case itemAIWorkspace(ResearchItemType)
+  case competitionReview
   case projectDetail
   case projectAddItem
   case projectTodo
@@ -101,6 +103,12 @@ enum GistLaunchRoute: Equatable {
       self = .itemDetail(.voice)
     case "detail-insight":
       self = .itemDetail(.insight)
+    case "detail-paper-ai":
+      self = .itemAIWorkspace(.paper)
+    case "detail-article-ai":
+      self = .itemAIWorkspace(.article)
+    case "competition-review":
+      self = .competitionReview
     case "project":
       self = .projectDetail
     case "project-add-item":

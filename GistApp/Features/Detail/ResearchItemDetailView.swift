@@ -355,6 +355,8 @@ struct AIInterpretationWorkspace: View {
   @Environment(GistSheetManager.self) private var sheetManager
   @Environment(GistNavigationRouter.self) private var router
   @Environment(ResearchItemRepository.self) private var repository
+  @Environment(ProjectRepository.self) private var projectRepository
+  @Environment(GistToastCenter.self) private var toastCenter
   @Environment(\.modelContext) private var modelContext
   let itemID: UUID
 
@@ -364,6 +366,8 @@ struct AIInterpretationWorkspace: View {
   @State private var isGeneratingArtifact = false
   @State private var generatedArtifact: StoredAIArtifact?
   @State private var artifactCache: PaperResearchArtifactCache?
+  @State private var availableProjects: [Project] = []
+  @State private var selectedProjectID: UUID?
   private let aiClient = AITaskClient.shared
 
   var body: some View {
@@ -396,16 +400,27 @@ struct AIInterpretationWorkspace: View {
             Text("对重要论文生成一份可进入项目页“科研产出中心”的深度解读稿。")
               .font(theme.fonts.callout)
               .foregroundStyle(theme.colors.textSecondary)
+
+            if item?.itemType == .paper {
+              projectBindingSection
+            }
+
             Button(isGeneratingArtifact ? "生成中..." : "生成深度解读稿") {
               generateArtifact()
             }
             .buttonStyle(.borderedProminent)
-            .disabled(isGeneratingArtifact || item == nil || item?.itemType != .paper)
+            .disabled(
+              isGeneratingArtifact || item == nil || item?.itemType != .paper || selectedProjectID == nil
+            )
 
             if item?.itemType != .paper {
               Text("当前只有论文类型支持深度稿生成。")
                 .font(theme.fonts.caption2)
                 .foregroundStyle(theme.colors.textTertiary)
+            } else if selectedProjectID == nil {
+              Text("请先为这篇论文选择归属项目，再生成深度稿。")
+                .font(theme.fonts.caption2)
+                .foregroundStyle(theme.colors.statusWarning)
             }
 
             if let generatedArtifact {
@@ -445,8 +460,44 @@ struct AIInterpretationWorkspace: View {
         }
       }
       .task {
-        item = repository.findByID(itemID)
+        loadContext()
       }
+    }
+  }
+
+  private var projectBindingSection: some View {
+    VStack(alignment: .leading, spacing: theme.spacing.sm) {
+      Text("产出归属项目")
+        .font(theme.fonts.footnote.weight(.semibold))
+        .foregroundStyle(theme.colors.textPrimary)
+
+      if availableProjects.isEmpty {
+        Text("当前还没有可选项目，请先回到资料详情或资料库创建项目。")
+          .font(theme.fonts.caption2)
+          .foregroundStyle(theme.colors.textTertiary)
+      } else {
+        Picker("项目", selection: $selectedProjectID) {
+          Text("请选择项目").tag(nil as UUID?)
+          ForEach(availableProjects, id: \.id) { project in
+            Text(project.name).tag(project.id as UUID?)
+          }
+        }
+
+        Button("保存项目归属") {
+          assignSelectedProjectIfNeeded(showToast: true)
+        }
+        .font(theme.fonts.caption1)
+        .foregroundStyle(theme.colors.textLink)
+        .disabled(selectedProjectID == nil)
+      }
+    }
+  }
+
+  private func loadContext() {
+    item = repository.findByID(itemID)
+    availableProjects = (try? projectRepository.fetchAll()) ?? []
+    if selectedProjectID == nil {
+      selectedProjectID = item?.projects?.first?.id
     }
   }
 
@@ -480,29 +531,44 @@ struct AIInterpretationWorkspace: View {
 
   private func generateArtifact() {
     guard let item else { return }
+    guard item.itemType == .paper else {
+      statusMessage = "当前只有论文类型支持深度稿生成。"
+      return
+    }
+    guard selectedProjectID != nil else {
+      statusMessage = "请先为这篇论文选择归属项目，再生成深度稿。"
+      return
+    }
+
+    assignSelectedProjectIfNeeded(showToast: false)
+    guard let refreshedItem = repository.findByID(itemID) else {
+      statusMessage = "未找到论文资料。"
+      return
+    }
+
     isGeneratingArtifact = true
     statusMessage = "正在生成论文深度稿，并准备写入项目科研产出中心..."
 
     Task { @MainActor in
       defer { isGeneratingArtifact = false }
       do {
-        let envelope = try await aiClient.generatePaperArtifact(for: item)
+        let envelope = try await aiClient.generatePaperArtifact(for: refreshedItem)
         let artifact = StoredAIArtifact(
           kind: .paperDeepDive,
-          sourceItemID: item.id,
-          sourceItemTitle: item.title,
+          sourceItemID: refreshedItem.id,
+          sourceItemTitle: refreshedItem.title,
           title: envelope.title,
           createdAt: Date(),
           markdownContent: envelope.markdownContent,
           paperArtifact: envelope.structuredJSON
         )
-        item.appendStoredArtifact(artifact)
-        item.aiInterpretationStatus = .completed
-        item.aiInterpretationResult = envelope.structuredJSON.oneSentenceSummary ?? "已生成论文深度稿。"
-        item.aiInterpretationDate = Date()
+        refreshedItem.appendStoredArtifact(artifact)
+        refreshedItem.aiInterpretationStatus = .completed
+        refreshedItem.aiInterpretationResult = envelope.structuredJSON.oneSentenceSummary ?? "已生成论文深度稿。"
+        refreshedItem.aiInterpretationDate = Date()
         let cache = artifactCache ?? PaperResearchArtifactCache()
-        cache.sourceItemID = item.id
-        cache.projectID = item.projects?.first?.id
+        cache.sourceItemID = refreshedItem.id
+        cache.projectID = selectedProjectID ?? refreshedItem.projects?.first?.id
         cache.title = envelope.title
         cache.artifactTypeRaw = envelope.artifactType
         cache.markdownContent = envelope.markdownContent
@@ -514,7 +580,7 @@ struct AIInterpretationWorkspace: View {
           modelContext.insert(cache)
         }
         artifactCache = cache
-        try repository.update(item)
+        try repository.update(refreshedItem)
         try? modelContext.save()
         generatedArtifact = artifact
         self.item = repository.findByID(itemID)
@@ -522,6 +588,36 @@ struct AIInterpretationWorkspace: View {
       } catch {
         statusMessage = "生成失败：\(error.localizedDescription)"
       }
+    }
+  }
+
+  private func assignSelectedProjectIfNeeded(showToast: Bool) {
+    guard let selectedProjectID, let item else { return }
+    guard let project = projectRepository.findByID(selectedProjectID) else {
+      statusMessage = "未找到所选项目。"
+      return
+    }
+
+    var projects = item.projects ?? []
+    if projects.contains(where: { $0.id == project.id }) {
+      if showToast {
+        statusMessage = "这篇论文已归入项目「\(project.name)」。"
+      }
+      return
+    }
+
+    projects.append(project)
+    item.projects = projects
+
+    do {
+      try repository.update(item)
+      self.item = repository.findByID(itemID)
+      statusMessage = "已将论文归入项目「\(project.name)」，可继续生成深度稿。"
+      if showToast {
+        toastCenter.show(message: "已归入项目「\(project.name)」", projectID: project.id)
+      }
+    } catch {
+      statusMessage = "保存项目归属失败：\(error.localizedDescription)"
     }
   }
 }

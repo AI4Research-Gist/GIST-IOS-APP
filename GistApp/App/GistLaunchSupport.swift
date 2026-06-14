@@ -89,6 +89,7 @@ enum GistLaunchRoute: Equatable {
   case libraryList(GistLibraryDimension)
   case itemDetail(ResearchItemType)
   case itemAIWorkspace(ResearchItemType)
+  case stage2PaperAI
   case stage2UnassignedPaper
   case stage2WorkflowProject
   case stage2CompetitionProject
@@ -125,6 +126,8 @@ enum GistLaunchRoute: Equatable {
       self = .itemAIWorkspace(.paper)
     case "detail-article-ai":
       self = .itemAIWorkspace(.article)
+    case "stage2-paper-ai":
+      self = .stage2PaperAI
     case "stage2-unassigned-paper":
       self = .stage2UnassignedPaper
     case "stage2-workflow-project":

@@ -203,6 +203,15 @@ private struct GistRootContentView: View {
         router.navigateToItem(itemID)
         sheetManager.present(.aiInterpretation(itemID: itemID))
       }
+    case .stage2PaperAI:
+      if let itemID = resolveNamedItemID(
+        "workflow-paper-pending",
+        snapshot: snapshot,
+        itemRepository: itemRepository
+      ) {
+        router.navigateToItem(itemID)
+        sheetManager.present(.aiInterpretation(itemID: itemID))
+      }
     case .stage2UnassignedPaper:
       if let itemID = resolveNamedItemID(
         "unassigned-paper",
@@ -230,7 +239,11 @@ private struct GistRootContentView: View {
     case .competitionReview:
       sheetManager.present(
         .competitionReview(
-          projectID: nil,
+          projectID: resolveNamedProjectID(
+            "competition",
+            snapshot: snapshot,
+            projectRepository: projectRepository
+          ),
           rawText: "Agent Research Demo Challenge 2026: 请提交五分钟演示视频、项目说明 PDF 与代码仓库链接，报名截止下周五 23:59。",
           sourceURL: "https://example.com/agent-demo-challenge"
         )

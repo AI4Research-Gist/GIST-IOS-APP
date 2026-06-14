@@ -8,6 +8,8 @@ enum GistModelContainer {
       Tag.self,
       Annotation.self,
       CaptureInboxItem.self,
+      CompetitionExtractionCache.self,
+      PaperResearchArtifactCache.self,
     ])
 
     let configuration = ModelConfiguration(

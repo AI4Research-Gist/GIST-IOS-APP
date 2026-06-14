@@ -214,7 +214,7 @@ private struct ProjectDirectoryCard: View {
         HStack(spacing: theme.spacing.md) {
           Text("\(stats.totalCount) 篇资料 · \(stats.unreadCount) 未读")
           Spacer()
-          Text("\(stats.competitionCount) 个竞赛")
+          Text("\(stats.competitionCount) 个竞赛 · \(stats.artifactCount) 份产出")
         }
         .font(theme.fonts.footnote)
         .foregroundStyle(theme.colors.textTertiary)

@@ -521,6 +521,8 @@ enum GistAcceptanceBootstrapper {
   private static func clearStore(modelContext: ModelContext) throws {
     try deleteAll(Annotation.self, modelContext: modelContext)
     try deleteAll(CaptureInboxItem.self, modelContext: modelContext)
+    try deleteAll(CompetitionExtractionCache.self, modelContext: modelContext)
+    try deleteAll(PaperResearchArtifactCache.self, modelContext: modelContext)
     try deleteAll(ResearchItem.self, modelContext: modelContext)
     try deleteAll(Project.self, modelContext: modelContext)
     try deleteAll(Tag.self, modelContext: modelContext)

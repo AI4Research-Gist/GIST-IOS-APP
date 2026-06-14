@@ -353,6 +353,7 @@ struct AIInterpretationWorkspace: View {
   @Environment(GistSheetManager.self) private var sheetManager
   @Environment(GistNavigationRouter.self) private var router
   @Environment(ResearchItemRepository.self) private var repository
+  @Environment(\.modelContext) private var modelContext
   let itemID: UUID
 
   @State private var item: ResearchItem?
@@ -360,6 +361,7 @@ struct AIInterpretationWorkspace: View {
   @State private var isGeneratingCard = false
   @State private var isGeneratingArtifact = false
   @State private var generatedArtifact: StoredAIArtifact?
+  @State private var artifactCache: PaperResearchArtifactCache?
   private let aiClient = AITaskClient.shared
 
   var body: some View {
@@ -396,7 +398,13 @@ struct AIInterpretationWorkspace: View {
               generateArtifact()
             }
             .buttonStyle(.borderedProminent)
-            .disabled(isGeneratingArtifact || item == nil)
+            .disabled(isGeneratingArtifact || item == nil || item?.itemType != .paper)
+
+            if item?.itemType != .paper {
+              Text("当前只有论文类型支持深度稿生成。")
+                .font(theme.fonts.caption2)
+                .foregroundStyle(theme.colors.textTertiary)
+            }
 
             if let generatedArtifact {
               VStack(alignment: .leading, spacing: theme.spacing.sm) {
@@ -490,7 +498,22 @@ struct AIInterpretationWorkspace: View {
         item.aiInterpretationStatus = .completed
         item.aiInterpretationResult = envelope.structuredJSON.oneSentenceSummary ?? "已生成论文深度稿。"
         item.aiInterpretationDate = Date()
+        let cache = artifactCache ?? PaperResearchArtifactCache()
+        cache.sourceItemID = item.id
+        cache.projectID = item.projects?.first?.id
+        cache.title = envelope.title
+        cache.artifactTypeRaw = envelope.artifactType
+        cache.markdownContent = envelope.markdownContent
+        cache.structuredJSON = encodeJSONString(envelope.structuredJSON)
+        cache.statusRaw = "draft"
+        cache.generatedAt = Date()
+        cache.updatedAt = Date()
+        if artifactCache == nil {
+          modelContext.insert(cache)
+        }
+        artifactCache = cache
         try repository.update(item)
+        try? modelContext.save()
         generatedArtifact = artifact
         self.item = repository.findByID(itemID)
         statusMessage = "深度稿已保存，可在项目页科研产出中心查看。"

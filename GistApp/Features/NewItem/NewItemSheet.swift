@@ -314,6 +314,7 @@ struct CompetitionReviewSheet: View {
   @Environment(GistToastCenter.self) private var toastCenter
   @Environment(ResearchItemRepository.self) private var repository
   @Environment(ProjectRepository.self) private var projectRepository
+  @Environment(\.modelContext) private var modelContext
 
   let initialProjectID: UUID?
   let initialRawText: String
@@ -324,6 +325,7 @@ struct CompetitionReviewSheet: View {
   @State private var selectedProjectID: UUID?
   @State private var projects: [Project] = []
   @State private var extracted: CompetitionExtractionResult?
+  @State private var extractionCache: CompetitionExtractionCache?
   @State private var isExtracting = false
   @State private var errorMessage: String?
   private let aiClient = AITaskClient.shared
@@ -418,10 +420,23 @@ struct CompetitionReviewSheet: View {
     Task { @MainActor in
       defer { isExtracting = false }
       do {
-        extracted = try await aiClient.extractCompetition(
+        let result = try await aiClient.extractCompetition(
           rawText: trimmedText,
           sourceURL: sourceURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : sourceURL
         )
+        extracted = result
+        let cache = extractionCache ?? CompetitionExtractionCache()
+        cache.competitionName = result.competitionName
+        cache.sourceURL = result.officialURL ?? emptyToNil(sourceURL)
+        cache.rawInputPreview = String(trimmedText.prefix(200))
+        cache.extractedJSON = encodeJSONString(result)
+        cache.overallConfidence = result.overallConfidence
+        cache.updatedAt = Date()
+        if extractionCache == nil {
+          modelContext.insert(cache)
+        }
+        extractionCache = cache
+        try? modelContext.save()
       } catch {
         errorMessage = "抽取失败：\(error.localizedDescription)"
       }
@@ -457,6 +472,11 @@ struct CompetitionReviewSheet: View {
 
     do {
       try repository.create(item)
+      extractionCache?.competitionItemID = item.id
+      extractionCache?.reviewStatusRaw = "confirmed"
+      extractionCache?.reviewedAt = Date()
+      extractionCache?.updatedAt = Date()
+      try? modelContext.save()
       toastCenter.show(message: "已保存竞赛「\(item.title)」", itemID: item.id)
       sheetManager.dismiss()
     } catch {
@@ -563,5 +583,11 @@ struct CompetitionReviewSheet: View {
       return date.formatted(.dateTime.month().day().hour().minute())
     }
     return isoString
+  }
+
+  private func emptyToNil(_ value: String?) -> String? {
+    guard let value else { return nil }
+    let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty ? nil : trimmed
   }
 }

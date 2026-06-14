@@ -267,6 +267,47 @@ final class CaptureInboxItem {
   }
 }
 
+@Model
+final class CompetitionExtractionCache {
+  var id: UUID = UUID()
+  var serverTaskID: Int? = nil
+  var competitionItemID: UUID? = nil
+  var competitionServerItemID: Int? = nil
+  var competitionName: String? = nil
+  var sourceURL: String? = nil
+  var rawInputPreview: String? = nil
+  var extractedJSON: String? = nil
+  var overallConfidence: Double? = nil
+  var reviewStatusRaw: String = "pending"
+  var createdAt: Date = Date()
+  var updatedAt: Date = Date()
+  var reviewedAt: Date? = nil
+  var lastSyncedAt: Date? = nil
+
+  init() {}
+}
+
+@Model
+final class PaperResearchArtifactCache {
+  var id: UUID = UUID()
+  var serverArtifactID: Int? = nil
+  var sourceItemID: UUID? = nil
+  var sourceServerItemID: Int? = nil
+  var projectID: UUID? = nil
+  var title: String = ""
+  var artifactTypeRaw: String = "paper_deep_dive"
+  var markdownContent: String? = nil
+  var structuredJSON: String? = nil
+  var statusRaw: String = "draft"
+  var generatedAt: Date? = nil
+  var updatedAt: Date = Date()
+  var userEdited: Bool = false
+  var modelName: String? = nil
+  var lastSyncedAt: Date? = nil
+
+  init() {}
+}
+
 struct CardField: Codable, Hashable {
   var content: String
   var confidence: Double

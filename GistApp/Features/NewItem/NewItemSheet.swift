@@ -16,6 +16,7 @@ struct NewItemSheet: View {
   @State private var summary = ""
   @State private var sourceURL = ""
   @State private var sourceName = ""
+  @State private var fullText = ""
   @State private var authors = ""
   @State private var publicationVenue = ""
   @State private var publicationYear = ""
@@ -125,6 +126,12 @@ struct NewItemSheet: View {
         }
       }
 
+      if type == .paper || type == .article {
+        Section("正文摘录") {
+          TextField("粘贴正文、摘要扩展或阅读摘录", text: $fullText, axis: .vertical)
+        }
+      }
+
       Section("归属项目") {
         Picker("项目", selection: $selectedProjectID) {
           Text("不选择项目").tag(nil as UUID?)
@@ -209,6 +216,7 @@ struct NewItemSheet: View {
     let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedSummary = summary.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedURL = sourceURL.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedFullText = fullText.trimmingCharacters(in: .whitespacesAndNewlines)
 
     guard !trimmedTitle.isEmpty || type == .insight && !trimmedSummary.isEmpty else {
       errorMessage = "请先填写标题或内容。"
@@ -220,6 +228,11 @@ struct NewItemSheet: View {
       itemType: type
     )
     item.summary = trimmedSummary.isEmpty ? nil : trimmedSummary
+    if type == .paper || type == .article {
+      item.fullText = trimmedFullText.isEmpty
+        ? (trimmedSummary.isEmpty ? nil : trimmedSummary)
+        : trimmedFullText
+    }
     item.sourceURL = trimmedURL.isEmpty ? nil : trimmedURL
     item.sourceName = sourceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       ? URL(string: trimmedURL)?.host()

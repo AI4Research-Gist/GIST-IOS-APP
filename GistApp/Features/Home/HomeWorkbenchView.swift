@@ -183,24 +183,41 @@ private struct HomeItemListCard: View {
 
 private struct CompetitionDeadlineCard: View {
   @Environment(GistTheme.self) private var theme
+  @Environment(GistNavigationRouter.self) private var router
   let item: ResearchItem
 
   var body: some View {
-    VStack(alignment: .leading, spacing: theme.spacing.sm) {
-      Label("竞赛节点", systemImage: theme.icons.competition)
-        .font(theme.fonts.headline)
-        .foregroundStyle(theme.colors.statusWarning)
-      Text(item.title)
-        .font(theme.fonts.title3)
-        .foregroundStyle(theme.colors.textPrimary)
-        .lineLimit(1)
-      if let deadline = item.competitionDeadline {
-        Text("截止：\(deadline.formatted(.dateTime.month().day().hour().minute()))")
-          .font(theme.fonts.callout)
-          .foregroundStyle(theme.colors.textSecondary)
+    Button {
+      router.navigateToItem(item.id)
+    } label: {
+      VStack(alignment: .leading, spacing: theme.spacing.sm) {
+        Label("竞赛节点", systemImage: theme.icons.competition)
+          .font(theme.fonts.headline)
+          .foregroundStyle(theme.colors.statusWarning)
+        Text(item.title)
+          .font(theme.fonts.title3)
+          .foregroundStyle(theme.colors.textPrimary)
+          .lineLimit(1)
+        if let deadline = item.competitionDeadline {
+          Text("截止：\(deadline.formatted(.dateTime.month().day().hour().minute()))")
+            .font(theme.fonts.callout)
+            .foregroundStyle(theme.colors.textSecondary)
+        }
+        if let projectName = item.projects?.first?.name {
+          HStack(spacing: theme.spacing.xs) {
+            Text("归属项目：\(projectName)")
+              .font(theme.fonts.footnote)
+              .foregroundStyle(theme.colors.textTertiary)
+            Spacer()
+            Text("查看详情")
+              .font(theme.fonts.caption1)
+              .foregroundStyle(theme.colors.textLink)
+          }
+        }
       }
+      .gistCard()
     }
-    .gistCard()
+    .buttonStyle(.plain)
   }
 }
 

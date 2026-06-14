@@ -182,9 +182,15 @@ struct ResearchItemDetailView: View {
   private var projectAndTagsSection: some View {
     if let item {
       VStack(alignment: .leading, spacing: theme.spacing.sm) {
-        Text("项目与标签")
-          .font(theme.fonts.headline)
-          .foregroundStyle(theme.colors.textPrimary)
+        HStack {
+          Text("项目与标签")
+            .font(theme.fonts.headline)
+            .foregroundStyle(theme.colors.textPrimary)
+          Spacer()
+          projectAssignmentMenu(for: item)
+            .font(theme.fonts.footnote)
+            .foregroundStyle(theme.colors.textLink)
+        }
         if let projects = item.projects, !projects.isEmpty {
           ForEach(projects, id: \.id) { project in
             Button {

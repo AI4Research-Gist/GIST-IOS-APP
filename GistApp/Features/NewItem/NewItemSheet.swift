@@ -31,6 +31,7 @@ struct NewItemSheet: View {
   @State private var competitionDeadline = Date()
   @State private var hasCompetitionDeadline = false
   @State private var errorMessage: String?
+  @State private var didApplyLaunchPreset = false
 
   var body: some View {
     NavigationStack {
@@ -209,6 +210,7 @@ struct NewItemSheet: View {
     .scrollContentBackground(.hidden)
     .task {
       loadProjects()
+      applyLaunchPresetIfNeeded()
     }
   }
 
@@ -284,6 +286,32 @@ struct NewItemSheet: View {
       }
     } catch {
       errorMessage = "项目列表读取失败：\(error.localizedDescription)"
+    }
+  }
+
+  private func applyLaunchPresetIfNeeded() {
+    guard !didApplyLaunchPreset else { return }
+    guard let preset = GistLaunchConfiguration.current.newItemPreset else { return }
+    didApplyLaunchPreset = true
+
+    switch preset {
+    case .paperDemo:
+      selectedType = .paper
+      title = "DemoPaper: Building Reliable Research Loops"
+      summary = "用于阶段 2 演示的论文样本，验证新增、详情、结构化阅读卡与项目归属主链。"
+      fullText = """
+        这篇演示论文聚焦于如何把新增资料、结构化阅读卡、项目归属和科研产出中心连接成一个可靠闭环。重点不是模型能力本身，而是每一步是否都能留下可追溯的数据痕迹。
+        """
+      sourceURL = "https://arxiv.org/abs/2606.00001"
+      sourceName = "arXiv"
+      authors = "Demo Author, Research Builder"
+      publicationVenue = "DemoConf 2026"
+      publicationYear = "2026"
+      doi = "10.1000/demopaper"
+      arxivID = "2606.00001"
+      if selectedProjectID == nil {
+        selectedProjectID = initialProjectID
+      }
     }
   }
 

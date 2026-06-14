@@ -6,6 +6,7 @@ struct GistLaunchConfiguration {
   let initialSheet: GistSheetType?
   let seedProfile: GistSeedProfile?
   let initialRoute: GistLaunchRoute?
+  let newItemPreset: GistNewItemPreset?
   let initialToastItemType: ResearchItemType?
   let autoOpenToastItem: Bool
   let listStartsSelecting: Bool
@@ -21,6 +22,7 @@ struct GistLaunchConfiguration {
       initialSheet: GistSheetType(argumentValue: arguments.value(after: "-GistInitialSheet")),
       seedProfile: GistSeedProfile(argumentValue: arguments.value(after: "-GistSeed")),
       initialRoute: GistLaunchRoute(argumentValue: arguments.value(after: "-GistInitialRoute")),
+      newItemPreset: GistNewItemPreset(argumentValue: arguments.value(after: "-GistNewItemPreset")),
       initialToastItemType: ResearchItemType(argumentValue: arguments.value(after: "-GistInitialToast")),
       autoOpenToastItem: arguments.boolValue(for: "-GistAutoToastView"),
       listStartsSelecting: arguments.boolValue(for: "-GistListSelecting"),
@@ -29,6 +31,19 @@ struct GistLaunchConfiguration {
       showsSwipeActionsPreview: arguments.boolValue(for: "-GistPreviewSwipeActions"),
       directoryFocusSection: GistDirectoryFocusSection(argumentValue: arguments.value(after: "-GistDirectoryFocus"))
     )
+  }
+}
+
+enum GistNewItemPreset: Equatable {
+  case paperDemo
+
+  init?(argumentValue: String?) {
+    switch argumentValue?.lowercased() {
+    case "paper-demo", "paperdemo", "paper":
+      self = .paperDemo
+    default:
+      return nil
+    }
   }
 }
 

@@ -25,6 +25,7 @@ struct ResearchItemDetailView: View {
         metadataSection
         section(title: "正文阅读", message: primaryBodyText)
         structuredCardSection
+        nextStepSection
         aiInterpretationSection
         typeSpecificSection
         projectAndTagsSection
@@ -115,6 +116,58 @@ struct ResearchItemDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     .gistCard()
+  }
+
+  @ViewBuilder
+  private var nextStepSection: some View {
+    if let item, let nextStep = stage2NextStep(for: item) {
+      VStack(alignment: .leading, spacing: theme.spacing.md) {
+        Text("阶段 2 下一步")
+          .font(theme.fonts.headline)
+          .foregroundStyle(theme.colors.textPrimary)
+
+        switch nextStep {
+        case .generateCard:
+          Text("先补齐结构化阅读卡，这样研究问题、方法、关键发现才能进入后续项目聚合。")
+            .font(theme.fonts.callout)
+            .foregroundStyle(theme.colors.textSecondary)
+          Button("生成结构化阅读卡") {
+            sheetManager.present(.aiInterpretation(itemID: itemID))
+          }
+          .font(theme.fonts.footnote)
+          .foregroundStyle(theme.colors.textLink)
+
+        case .assignProject:
+          Text("把这条资料归入项目后，首页项目进展和项目详情页才会开始反馈它。")
+            .font(theme.fonts.callout)
+            .foregroundStyle(theme.colors.textSecondary)
+          projectAssignmentMenu(for: item)
+            .font(theme.fonts.footnote)
+            .foregroundStyle(theme.colors.textLink)
+
+        case .generateArtifact:
+          Text("这篇论文已经具备阅读卡和项目归属，下一步可以生成深度稿并写入科研产出中心。")
+            .font(theme.fonts.callout)
+            .foregroundStyle(theme.colors.textSecondary)
+          Button("生成深度解读稿") {
+            sheetManager.present(.aiInterpretation(itemID: itemID))
+          }
+          .font(theme.fonts.footnote)
+          .foregroundStyle(theme.colors.textLink)
+
+        case .openProject(let project):
+          Text("这条资料已经进入项目闭环，可以直接回到项目页检查聚合、竞赛节点或科研产出中心。")
+            .font(theme.fonts.callout)
+            .foregroundStyle(theme.colors.textSecondary)
+          Button("查看项目「\(project.name)」") {
+            router.navigateToProject(project.id)
+          }
+          .font(theme.fonts.footnote)
+          .foregroundStyle(theme.colors.textLink)
+        }
+      }
+      .gistCard()
+    }
   }
 
   private var aiInterpretationSection: some View {
@@ -285,6 +338,34 @@ struct ResearchItemDetailView: View {
     ]
   }
 
+  private func stage2NextStep(for item: ResearchItem) -> DetailStage2NextStep? {
+    let hasProject = !(item.projects?.isEmpty ?? true)
+    let hasStructuredCard = structuredCardFields(from: item).contains { _, value in
+      guard let value else { return false }
+      return !value.isEmpty
+    }
+
+    switch item.itemType {
+    case .paper:
+      if !hasStructuredCard { return .generateCard }
+      if !hasProject { return .assignProject }
+      if item.storedArtifacts.isEmpty { return .generateArtifact }
+      if let project = item.projects?.first { return .openProject(project) }
+      return nil
+
+    case .article:
+      if !hasStructuredCard { return .generateCard }
+      if !hasProject { return .assignProject }
+      if let project = item.projects?.first { return .openProject(project) }
+      return nil
+
+    case .competition, .voice, .insight:
+      if !hasProject { return .assignProject }
+      if let project = item.projects?.first { return .openProject(project) }
+      return nil
+    }
+  }
+
   private func section(title: String, message: String) -> some View {
     VStack(alignment: .leading, spacing: theme.spacing.sm) {
       Text(title)
@@ -372,6 +453,13 @@ struct ResearchItemDetailView: View {
         .multilineTextAlignment(.trailing)
     }
   }
+}
+
+private enum DetailStage2NextStep {
+  case generateCard
+  case assignProject
+  case generateArtifact
+  case openProject(Project)
 }
 
 @MainActor

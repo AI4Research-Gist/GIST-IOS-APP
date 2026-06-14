@@ -347,6 +347,9 @@ enum GistAcceptanceBootstrapper {
       aiInterpretationStatus: .completed
     )
     paperMain.summary = "讨论如何在真实科研流程中衡量 Agent 的资料采集、理解和执行能力。"
+    paperMain.fullText = """
+      AgentSense 将 Agent 的能力评价从单点问答推进到真实科研工作流：先收集论文与网页资料，再做结构化理解，最后要求产出可追踪的项目动作。论文强调，如果没有证据链与任务上下文，很多看似漂亮的结果都无法在真实研究流程中复用。
+      """
     paperMain.sourceName = "arXiv"
     paperMain.sourceURL = "https://arxiv.org/abs/2601.12345"
     paperMain.authors = ["Lin", "Zhao", "Wu"]
@@ -408,6 +411,9 @@ enum GistAcceptanceBootstrapper {
       readingStatus: .unread
     )
     paperPending.summary = "关注长上下文检索在研究资料场景下的应用。"
+    paperPending.fullText = """
+      这篇论文关注长研究上下文中的检索切片、段落召回和引用保持问题，核心价值在于把“检索速度”与“研究可追溯性”放到同一个评价框架里。
+      """
     paperPending.sourceName = "arXiv"
     paperPending.publicationVenue = "ICLR 2026"
     paperPending.publicationYear = 2026
@@ -422,6 +428,9 @@ enum GistAcceptanceBootstrapper {
       readingStatus: .reading
     )
     article.summary = "从阅读卡、项目归档到产出中心，构建研究资料的闭环。"
+    article.fullText = """
+      一条资料只有在进入项目、触发行动，或者被复用到后续产出时，才真正形成闭环。阅读卡解决的是理解，项目容器解决的是组织，产出中心解决的是长期复用。
+      """
     article.sourceName = "Research Engineering Notes"
     article.sourceURL = "https://example.com/research-engineering-notes"
     article.readingProgress = 0.43
@@ -478,7 +487,13 @@ enum GistAcceptanceBootstrapper {
       readingStatus: .unread
     )
     externalPaper.summary = "专门留给“归入项目”链路验证的独立论文。"
+    externalPaper.fullText = """
+      这篇论文尚未归属任何项目，适合用来验证从详情页归入项目、再回到项目页检查资料聚合与项目进展的完整链路。
+      """
     externalPaper.sourceName = "Workshop"
+    externalPaper.sourceURL = "https://example.com/unassigned-benchmark-notes"
+    externalPaper.publicationVenue = "Agent Workshop 2026"
+    externalPaper.publicationYear = 2026
 
     let externalArticle = ResearchItem(
       title: "比赛通知草稿摘录",
@@ -488,6 +503,9 @@ enum GistAcceptanceBootstrapper {
       readingStatus: .unread
     )
     externalArticle.summary = "用于从资料库再次转入项目或触发竞赛提取。"
+    externalArticle.fullText = """
+      请提交五分钟演示视频、项目说明 PDF 与代码仓库链接。报名截止时间为下周五 23:59，决赛答辩安排在次月第一周。评审重点包括闭环完整性、研究价值与演示质量。
+      """
     externalArticle.sourceName = "Clipboard"
 
     projectWorkflow.researchItems = [paperMain, paperPending, article, voice, insight]

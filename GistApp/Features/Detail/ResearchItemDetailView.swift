@@ -23,7 +23,7 @@ struct ResearchItemDetailView: View {
           .font(theme.fonts.body)
           .foregroundStyle(theme.colors.textSecondary)
         metadataSection
-        section(title: "正文阅读", message: item?.fullText ?? "暂无正文。阶段 1 保留正文入口。")
+        section(title: "正文阅读", message: primaryBodyText)
         structuredCardSection
         aiInterpretationSection
         typeSpecificSection
@@ -83,6 +83,17 @@ struct ResearchItemDetailView: View {
 
   private var aiText: String {
     item?.aiInterpretationResult ?? "未解读。AI 解读入口保留在正文和结构化阅读卡之后。"
+  }
+
+  private var primaryBodyText: String {
+    guard let item else { return "暂无正文。阶段 1 保留正文入口。" }
+    if let fullText = item.fullText, !fullText.isEmpty {
+      return fullText
+    }
+    if let summary = item.summary, !summary.isEmpty {
+      return summary
+    }
+    return "暂无正文。阶段 1 保留正文入口。"
   }
 
   private var structuredCardSection: some View {

@@ -446,6 +446,9 @@ enum GistAcceptanceBootstrapper {
       readingStatus: .unread
     )
     competition.summary = "要求提交研究型 AI 工作流演示，强调证据、闭环与复用价值。"
+    competition.fullText = """
+      请提交研究型 AI 工作流演示，报名材料包含项目说明 PDF、五分钟演示视频与代码仓库链接。评审重点包括闭环完整性、研究价值与演示质量，报名截止时间为五天后 23:59。
+      """
     competition.sourceName = "Competition Hub"
     competition.competitionDeadline = Calendar.current.date(byAdding: .day, value: 5, to: now)
     competition.competitionStage = .collecting

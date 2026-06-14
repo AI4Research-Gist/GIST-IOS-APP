@@ -250,6 +250,10 @@ struct NewItemSheet: View {
       item.competitionURL = trimmedURL.isEmpty ? nil : trimmedURL
     }
     if type == .competition {
+      let trimmedCompetitionNotice = rawCompetitionNotice.trimmingCharacters(in: .whitespacesAndNewlines)
+      item.fullText = trimmedCompetitionNotice.isEmpty
+        ? (trimmedSummary.isEmpty ? nil : trimmedSummary)
+        : trimmedCompetitionNotice
       item.competitionSubmissionItems = splitList(competitionSubmissionItems)
       item.competitionScoringPoints = splitList(competitionScoringPoints)
     }
@@ -464,6 +468,9 @@ struct CompetitionReviewSheet: View {
     item.summary = result.eligibility?.description ?? "由 mock 竞赛抽取任务生成"
     item.sourceURL = sourceURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : sourceURL
     item.sourceName = "Competition Review"
+    item.fullText = rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      ? (item.summary ?? "由 mock 竞赛抽取任务生成")
+      : rawText.trimmingCharacters(in: .whitespacesAndNewlines)
     item.competitionStage = .collecting
     item.competitionURL = result.officialURL ?? item.sourceURL
     item.competitionSubmissionItems = result.submissionRequirements?.map(\.item)

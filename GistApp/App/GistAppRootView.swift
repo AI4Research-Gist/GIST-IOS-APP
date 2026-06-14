@@ -203,6 +203,30 @@ private struct GistRootContentView: View {
         router.navigateToItem(itemID)
         sheetManager.present(.aiInterpretation(itemID: itemID))
       }
+    case .stage2UnassignedPaper:
+      if let itemID = resolveNamedItemID(
+        "unassigned-paper",
+        snapshot: snapshot,
+        itemRepository: itemRepository
+      ) {
+        router.navigateToItem(itemID)
+      }
+    case .stage2WorkflowProject:
+      if let projectID = resolveNamedProjectID(
+        "workflow",
+        snapshot: snapshot,
+        projectRepository: projectRepository
+      ) {
+        router.navigateToProject(projectID)
+      }
+    case .stage2CompetitionProject:
+      if let projectID = resolveNamedProjectID(
+        "competition",
+        snapshot: snapshot,
+        projectRepository: projectRepository
+      ) {
+        router.navigateToProject(projectID)
+      }
     case .competitionReview:
       sheetManager.present(
         .competitionReview(
@@ -212,16 +236,25 @@ private struct GistRootContentView: View {
         )
       )
     case .projectDetail:
-      if let projectID = resolveProjectID(snapshot: snapshot, projectRepository: projectRepository) {
+      if let projectID =
+        resolveNamedProjectID("workflow", snapshot: snapshot, projectRepository: projectRepository)
+        ?? resolveProjectID(snapshot: snapshot, projectRepository: projectRepository)
+      {
         router.navigateToProject(projectID)
       }
     case .projectAddItem:
-      if let projectID = resolveProjectID(snapshot: snapshot, projectRepository: projectRepository) {
+      if let projectID =
+        resolveNamedProjectID("workflow", snapshot: snapshot, projectRepository: projectRepository)
+        ?? resolveProjectID(snapshot: snapshot, projectRepository: projectRepository)
+      {
         router.navigateToProject(projectID)
         sheetManager.present(.addItemToProject(projectID: projectID))
       }
     case .projectTodo:
-      if let projectID = resolveProjectID(snapshot: snapshot, projectRepository: projectRepository) {
+      if let projectID =
+        resolveNamedProjectID("workflow", snapshot: snapshot, projectRepository: projectRepository)
+        ?? resolveProjectID(snapshot: snapshot, projectRepository: projectRepository)
+      {
         router.navigateToProject(projectID)
       }
     }
@@ -282,6 +315,35 @@ private struct GistRootContentView: View {
     return try? projectRepository.fetchAll().first?.id
   }
 
+  private func resolveNamedProjectID(
+    _ key: String,
+    snapshot: GistLaunchSeedSnapshot,
+    projectRepository: ProjectRepository
+  ) -> UUID? {
+    if let projectID = snapshot.namedProjectIDs[key] {
+      return projectID
+    }
+
+    let expectedName: String? = switch key {
+    case "workflow":
+      "AI 研究资料闭环"
+    case "competition":
+      "竞赛申报工作流"
+    case "acceptance-primary":
+      "Agentic Research Workflow"
+    default:
+      nil
+    }
+
+    guard
+      let expectedName,
+      let projects = try? projectRepository.fetchAll()
+    else {
+      return nil
+    }
+    return projects.first(where: { $0.name == expectedName })?.id
+  }
+
   private func resolveItemID(
     for type: ResearchItemType,
     snapshot: GistLaunchSeedSnapshot,
@@ -291,6 +353,39 @@ private struct GistRootContentView: View {
       return itemID
     }
     return try? itemRepository.fetchAll().first(where: { $0.itemTypeRaw == type.rawValue })?.id
+  }
+
+  private func resolveNamedItemID(
+    _ key: String,
+    snapshot: GistLaunchSeedSnapshot,
+    itemRepository: ResearchItemRepository
+  ) -> UUID? {
+    if let itemID = snapshot.namedItemIDs[key] {
+      return itemID
+    }
+
+    let expectedTitle: String? = switch key {
+    case "unassigned-paper":
+      "Unassigned Benchmark Notes"
+    case "workflow-paper":
+      "AgentSense: Evaluating LLM Agents in Real Research Workflows"
+    case "workflow-paper-pending":
+      "Flash Retrieval for Long Research Context"
+    case "workflow-article":
+      "如何把阅读笔记回流到项目推进中"
+    case "competition-item":
+      "Agent Research Demo Challenge 2026"
+    default:
+      nil
+    }
+
+    guard
+      let expectedTitle,
+      let items = try? itemRepository.fetchAll()
+    else {
+      return nil
+    }
+    return items.first(where: { $0.title == expectedTitle })?.id
   }
 
   private func itemTitle(

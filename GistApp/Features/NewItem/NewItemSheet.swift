@@ -23,6 +23,7 @@ struct NewItemSheet: View {
   @State private var arxivID = ""
   @State private var competitionSubmissionItems = ""
   @State private var competitionScoringPoints = ""
+  @State private var rawCompetitionNotice = ""
   @State private var voiceDuration = ""
   @State private var projects: [Project] = []
   @State private var selectedProjectID: UUID?
@@ -155,6 +156,22 @@ struct NewItemSheet: View {
       }
 
       if type == .competition {
+        Section("从比赛通知提取") {
+          TextField("粘贴比赛通知 / 报名说明 / 截止时间文本", text: $rawCompetitionNotice, axis: .vertical)
+          Button("AI 抽取并进入审查页") {
+            let seedText = rawCompetitionNotice.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+              ? summary
+              : rawCompetitionNotice
+            sheetManager.present(
+              .competitionReview(
+                projectID: selectedProjectID,
+                rawText: seedText,
+                sourceURL: sourceURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : sourceURL
+              )
+            )
+          }
+        }
+
         Section("竞赛节点") {
           Toggle("设置截止时间", isOn: $hasCompetitionDeadline)
           if hasCompetitionDeadline {
@@ -287,5 +304,264 @@ struct NewItemSheet: View {
   private func emptyToNil(_ value: String) -> String? {
     let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
     return trimmed.isEmpty ? nil : trimmed
+  }
+}
+
+@MainActor
+struct CompetitionReviewSheet: View {
+  @Environment(GistTheme.self) private var theme
+  @Environment(GistSheetManager.self) private var sheetManager
+  @Environment(GistToastCenter.self) private var toastCenter
+  @Environment(ResearchItemRepository.self) private var repository
+  @Environment(ProjectRepository.self) private var projectRepository
+
+  let initialProjectID: UUID?
+  let initialRawText: String
+  let initialSourceURL: String?
+
+  @State private var rawText: String
+  @State private var sourceURL: String
+  @State private var selectedProjectID: UUID?
+  @State private var projects: [Project] = []
+  @State private var extracted: CompetitionExtractionResult?
+  @State private var isExtracting = false
+  @State private var errorMessage: String?
+  private let aiClient = AITaskClient.shared
+
+  init(initialProjectID: UUID?, initialRawText: String, initialSourceURL: String?) {
+    self.initialProjectID = initialProjectID
+    self.initialRawText = initialRawText
+    self.initialSourceURL = initialSourceURL
+    _rawText = State(initialValue: initialRawText)
+    _sourceURL = State(initialValue: initialSourceURL ?? "")
+    _selectedProjectID = State(initialValue: initialProjectID)
+  }
+
+  var body: some View {
+    NavigationStack {
+      ScrollView {
+        VStack(alignment: .leading, spacing: theme.spacing.xl) {
+          VStack(alignment: .leading, spacing: theme.spacing.md) {
+            Text("原始通知")
+              .font(theme.fonts.headline)
+              .foregroundStyle(theme.colors.textPrimary)
+            TextField("粘贴比赛通知", text: $rawText, axis: .vertical)
+            TextField("官网链接（可选）", text: $sourceURL)
+              .textInputAutocapitalization(.never)
+              .autocorrectionDisabled()
+            Picker("归属项目", selection: $selectedProjectID) {
+              Text("不选择项目").tag(nil as UUID?)
+              ForEach(projects, id: \.id) { project in
+                Text(project.name).tag(project.id as UUID?)
+              }
+            }
+            Button(isExtracting ? "抽取中..." : "开始抽取") {
+              extract()
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isExtracting || rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+          }
+          .gistCard()
+
+          if let extracted {
+            competitionReviewCard(extracted)
+            Button("保存为竞赛资料") {
+              saveCompetition(from: extracted)
+            }
+            .buttonStyle(.borderedProminent)
+          }
+
+          if let errorMessage {
+            Text(errorMessage)
+              .font(theme.fonts.footnote)
+              .foregroundStyle(theme.colors.statusWarning)
+          }
+        }
+        .padding(theme.spacing.lg)
+      }
+      .background(theme.colors.bgSheet)
+      .navigationTitle("竞赛审查")
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Button("关闭") {
+            sheetManager.dismiss()
+          }
+        }
+      }
+      .task {
+        loadProjects()
+      }
+    }
+  }
+
+  private func loadProjects() {
+    do {
+      projects = try projectRepository.fetchAll()
+      if selectedProjectID == nil {
+        selectedProjectID = initialProjectID
+      }
+    } catch {
+      errorMessage = "项目列表读取失败：\(error.localizedDescription)"
+    }
+  }
+
+  private func extract() {
+    let trimmedText = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmedText.isEmpty else {
+      errorMessage = "请先粘贴比赛通知。"
+      return
+    }
+
+    isExtracting = true
+    errorMessage = nil
+
+    Task { @MainActor in
+      defer { isExtracting = false }
+      do {
+        extracted = try await aiClient.extractCompetition(
+          rawText: trimmedText,
+          sourceURL: sourceURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : sourceURL
+        )
+      } catch {
+        errorMessage = "抽取失败：\(error.localizedDescription)"
+      }
+    }
+  }
+
+  private func saveCompetition(from result: CompetitionExtractionResult) {
+    let item = ResearchItem(
+      title: result.competitionName ?? "未命名竞赛",
+      itemType: .competition
+    )
+    item.summary = result.eligibility?.description ?? "由 mock 竞赛抽取任务生成"
+    item.sourceURL = sourceURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : sourceURL
+    item.sourceName = "Competition Review"
+    item.competitionStage = .collecting
+    item.competitionURL = result.officialURL ?? item.sourceURL
+    item.competitionSubmissionItems = result.submissionRequirements?.map(\.item)
+    item.competitionScoringPoints = result.scoringCriteria?.map {
+      if let weight = $0.weight, !weight.isEmpty {
+        return "\($0.criterion)（\(weight)）"
+      }
+      return $0.criterion
+    }
+    if let firstDeadline = result.deadlines?.first {
+      item.competitionDeadline = ISO8601DateFormatter().date(from: firstDeadline.date)
+    }
+
+    if let selectedProjectID,
+      let project = projectRepository.findByID(selectedProjectID)
+    {
+      item.projects = [project]
+    }
+
+    do {
+      try repository.create(item)
+      toastCenter.show(message: "已保存竞赛「\(item.title)」", itemID: item.id)
+      sheetManager.dismiss()
+    } catch {
+      errorMessage = "保存失败：\(error.localizedDescription)"
+    }
+  }
+
+  private func competitionReviewCard(_ result: CompetitionExtractionResult) -> some View {
+    VStack(alignment: .leading, spacing: theme.spacing.lg) {
+      Text(result.competitionName ?? "未命名竞赛")
+        .font(theme.fonts.title3)
+        .foregroundStyle(theme.colors.textPrimary)
+
+      if let deadlines = result.deadlines, !deadlines.isEmpty {
+        reviewSection("截止时间") {
+          ForEach(Array(deadlines.enumerated()), id: \.offset) { _, deadline in
+            reviewEvidenceRow(
+              title: deadline.name,
+              value: formatDate(deadline.date),
+              confidence: deadline.confidence,
+              evidence: deadline.evidence
+            )
+          }
+        }
+      }
+
+      if let items = result.submissionRequirements, !items.isEmpty {
+        reviewSection("提交材料") {
+          ForEach(Array(items.enumerated()), id: \.offset) { _, requirement in
+            reviewEvidenceRow(
+              title: requirement.item,
+              value: requirement.format ?? (requirement.required == true ? "必交" : "待确认"),
+              confidence: requirement.confidence,
+              evidence: requirement.evidence
+            )
+          }
+        }
+      }
+
+      if let criteria = result.scoringCriteria, !criteria.isEmpty {
+        reviewSection("评分要点") {
+          ForEach(Array(criteria.enumerated()), id: \.offset) { _, criterion in
+            reviewEvidenceRow(
+              title: criterion.criterion,
+              value: criterion.weight ?? "未给出权重",
+              confidence: criterion.confidence,
+              evidence: criterion.evidence
+            )
+          }
+        }
+      }
+
+      if let uncertainFields = result.uncertainFields, !uncertainFields.isEmpty {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+          Text("待人工确认")
+            .font(theme.fonts.footnote.weight(.semibold))
+            .foregroundStyle(theme.colors.statusWarning)
+          Text(uncertainFields.joined(separator: " · "))
+            .font(theme.fonts.footnote)
+            .foregroundStyle(theme.colors.textSecondary)
+        }
+      }
+    }
+    .gistCard()
+  }
+
+  private func reviewSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+    VStack(alignment: .leading, spacing: theme.spacing.sm) {
+      Text(title)
+        .font(theme.fonts.headline)
+        .foregroundStyle(theme.colors.textPrimary)
+      content()
+    }
+  }
+
+  private func reviewEvidenceRow(
+    title: String,
+    value: String,
+    confidence: Double,
+    evidence: String?
+  ) -> some View {
+    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+      HStack(alignment: .firstTextBaseline) {
+        Text(title)
+          .font(theme.fonts.footnote.weight(.semibold))
+          .foregroundStyle(theme.colors.textPrimary)
+        Spacer()
+        Text(value)
+          .font(theme.fonts.footnote)
+          .foregroundStyle(theme.colors.textSecondary)
+      }
+      ProgressView(value: confidence)
+        .tint(confidence < 0.5 ? theme.colors.statusWarning : theme.colors.accentPrimary)
+      if let evidence, !evidence.isEmpty {
+        Text("依据：\(evidence)")
+          .font(theme.fonts.caption2)
+          .foregroundStyle(theme.colors.textTertiary)
+      }
+    }
+  }
+
+  private func formatDate(_ isoString: String) -> String {
+    if let date = ISO8601DateFormatter().date(from: isoString) {
+      return date.formatted(.dateTime.month().day().hour().minute())
+    }
+    return isoString
   }
 }

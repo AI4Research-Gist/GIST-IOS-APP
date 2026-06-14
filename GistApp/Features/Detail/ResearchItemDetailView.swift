@@ -4,9 +4,13 @@ import SwiftUI
 struct ResearchItemDetailView: View {
   @Environment(GistTheme.self) private var theme
   @Environment(ResearchItemRepository.self) private var repository
+  @Environment(ProjectRepository.self) private var projectRepository
+  @Environment(GistNavigationRouter.self) private var router
   @Environment(GistSheetManager.self) private var sheetManager
+  @Environment(GistDataChangeCenter.self) private var dataChangeCenter
   let itemID: UUID
   @State private var item: ResearchItem?
+  @State private var didMarkOpened = false
 
   var body: some View {
     ScrollView {
@@ -19,8 +23,8 @@ struct ResearchItemDetailView: View {
           .foregroundStyle(theme.colors.textSecondary)
         metadataSection
         section(title: "正文阅读", message: item?.fullText ?? "暂无正文。阶段 1 保留正文入口。")
-        section(title: "结构化阅读卡", message: structuredCardText)
-        section(title: "AI 解读", message: aiText)
+        structuredCardSection
+        aiInterpretationSection
         typeSpecificSection
         projectAndTagsSection
         section(title: "用户笔记", message: item?.userNotes ?? "暂无个人笔记。")
@@ -29,11 +33,12 @@ struct ResearchItemDetailView: View {
     }
     .background(theme.colors.bgPrimary)
     .navigationTitle("详情")
-    .task {
+    .task(id: dataChangeCenter.revision) {
       item = repository.findByID(itemID)
-      if let item {
+      if let item, !didMarkOpened {
         item.lastOpenedAt = Date()
         try? repository.update(item)
+        didMarkOpened = true
       }
     }
     .toolbar {
@@ -44,8 +49,9 @@ struct ResearchItemDetailView: View {
           Image(systemName: item?.isStarred == true ? theme.icons.starSelected : theme.icons.star)
         }
         Menu {
-          Button("移至项目") {}
-          Button("修改标签") {}
+          if let item {
+            projectAssignmentMenu(for: item)
+          }
           Button("触发 AI 解读") {
             sheetManager.present(.aiInterpretation(itemID: itemID))
           }
@@ -65,14 +71,7 @@ struct ResearchItemDetailView: View {
 
   private var structuredCardText: String {
     guard let item else { return "未找到结构化信息。" }
-    let fields = [
-      ("研究问题", item.researchQuestion),
-      ("方法", item.methodology),
-      ("数据集", item.datasetInfo),
-      ("关键发现", item.keyFindings),
-      ("局限性", item.limitations),
-      ("可复用点", item.reusePoints),
-    ]
+    let fields = structuredCardFields(from: item)
     let filled = fields.compactMap { pair -> String? in
       let (title, value) = pair
       guard let value, !value.isEmpty else { return nil }
@@ -83,6 +82,65 @@ struct ResearchItemDetailView: View {
 
   private var aiText: String {
     item?.aiInterpretationResult ?? "未解读。AI 解读入口保留在正文和结构化阅读卡之后。"
+  }
+
+  private var structuredCardSection: some View {
+    VStack(alignment: .leading, spacing: theme.spacing.md) {
+      HStack {
+        Text("结构化阅读卡")
+          .font(theme.fonts.headline)
+          .foregroundStyle(theme.colors.textPrimary)
+        Spacer()
+        Button("AI 填充") {
+          sheetManager.present(.aiInterpretation(itemID: itemID))
+        }
+        .font(theme.fonts.footnote)
+        .foregroundStyle(theme.colors.textLink)
+      }
+      Text(structuredCardText)
+        .font(theme.fonts.callout)
+        .foregroundStyle(theme.colors.textSecondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    .gistCard()
+  }
+
+  private var aiInterpretationSection: some View {
+    VStack(alignment: .leading, spacing: theme.spacing.md) {
+      HStack {
+        Text("AI 解读")
+          .font(theme.fonts.headline)
+          .foregroundStyle(theme.colors.textPrimary)
+        Spacer()
+        Button("打开工作台") {
+          sheetManager.present(.aiInterpretation(itemID: itemID))
+        }
+        .font(theme.fonts.footnote)
+        .foregroundStyle(theme.colors.textLink)
+      }
+      Text(aiText)
+        .font(theme.fonts.callout)
+        .foregroundStyle(theme.colors.textSecondary)
+      if let latestArtifact = item?.storedArtifacts.first {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+          Text("最新深度稿：\(latestArtifact.title)")
+            .font(theme.fonts.footnote.weight(.semibold))
+            .foregroundStyle(theme.colors.textPrimary)
+          Text(latestArtifact.paperArtifact.oneSentenceSummary ?? "已沉淀到项目科研产出中心。")
+            .font(theme.fonts.footnote)
+            .foregroundStyle(theme.colors.textSecondary)
+          Button("前往关联项目") {
+            if let projectID = item?.projects?.first?.id {
+              router.navigateToProject(projectID)
+            }
+          }
+          .font(theme.fonts.caption1)
+          .foregroundStyle(theme.colors.textLink)
+        }
+        .padding(.top, theme.spacing.xs)
+      }
+    }
+    .gistCard()
   }
 
   @ViewBuilder
@@ -128,9 +186,14 @@ struct ResearchItemDetailView: View {
           .foregroundStyle(theme.colors.textPrimary)
         if let projects = item.projects, !projects.isEmpty {
           ForEach(projects, id: \.id) { project in
-            Label(project.name, systemImage: theme.icons.project)
-              .font(theme.fonts.callout)
-              .foregroundStyle(theme.colors.textSecondary)
+            Button {
+              router.navigateToProject(project.id)
+            } label: {
+              Label(project.name, systemImage: theme.icons.project)
+                .font(theme.fonts.callout)
+                .foregroundStyle(theme.colors.textSecondary)
+            }
+            .buttonStyle(.plain)
           }
         } else {
           Text("尚未归入项目。")
@@ -152,6 +215,47 @@ struct ResearchItemDetailView: View {
     item.isStarred.toggle()
     try? repository.update(item)
     self.item = item
+  }
+
+  @ViewBuilder
+  private func projectAssignmentMenu(for item: ResearchItem) -> some View {
+    let projects = (try? projectRepository.fetchAll()) ?? []
+    if projects.isEmpty {
+      Button("新建项目") {
+        sheetManager.present(.editProject(projectID: nil))
+      }
+    } else {
+      Menu("移至项目") {
+        ForEach(projects, id: \.id) { project in
+          let alreadyAssigned = item.projects?.contains(where: { $0.id == project.id }) ?? false
+          Button(alreadyAssigned ? "\(project.name) · 已归属" : project.name) {
+            guard !alreadyAssigned else { return }
+            assign(item: item, to: project)
+          }
+        }
+      }
+    }
+  }
+
+  private func assign(item: ResearchItem, to project: Project) {
+    var projects = item.projects ?? []
+    guard !projects.contains(where: { $0.id == project.id }) else { return }
+    projects.append(project)
+    item.projects = projects
+    try? repository.update(item)
+    self.item = item
+  }
+
+  private func structuredCardFields(from item: ResearchItem) -> [(String, String?)] {
+    let decodedCard = item.structuredCardResult
+    return [
+      ("研究问题", decodedCard?.researchQuestion?.content ?? item.researchQuestion),
+      ("方法", decodedCard?.methodology?.content ?? item.methodology),
+      ("数据集", decodedCard?.datasetInfo?.content ?? item.datasetInfo),
+      ("关键发现", decodedCard?.keyFindings?.content ?? item.keyFindings),
+      ("局限性", decodedCard?.limitations?.content ?? item.limitations),
+      ("可复用点", decodedCard?.reusePoints?.content ?? item.reusePoints),
+    ]
   }
 
   private func section(title: String, message: String) -> some View {
@@ -239,6 +343,160 @@ struct ResearchItemDetailView: View {
         .font(theme.fonts.footnote)
         .foregroundStyle(theme.colors.textSecondary)
         .multilineTextAlignment(.trailing)
+    }
+  }
+}
+
+@MainActor
+struct AIInterpretationWorkspace: View {
+  @Environment(GistTheme.self) private var theme
+  @Environment(GistSheetManager.self) private var sheetManager
+  @Environment(GistNavigationRouter.self) private var router
+  @Environment(ResearchItemRepository.self) private var repository
+  let itemID: UUID
+
+  @State private var item: ResearchItem?
+  @State private var statusMessage = "可生成结构化阅读卡与深度解读稿。"
+  @State private var isGeneratingCard = false
+  @State private var isGeneratingArtifact = false
+  @State private var generatedArtifact: StoredAIArtifact?
+  private let aiClient = AITaskClient.shared
+
+  var body: some View {
+    NavigationStack {
+      ScrollView {
+        VStack(alignment: .leading, spacing: theme.spacing.xl) {
+          Text(item?.title ?? "AI 工作台")
+            .font(theme.fonts.title2)
+            .foregroundStyle(theme.colors.textPrimary)
+
+          VStack(alignment: .leading, spacing: theme.spacing.md) {
+            Text("结构化阅读卡")
+              .font(theme.fonts.headline)
+              .foregroundStyle(theme.colors.textPrimary)
+            Text(item?.structuredCardResult == nil ? "当前还没有结构化阅读卡。" : "已有阅读卡，可再次用 mock AI 补齐字段。")
+              .font(theme.fonts.callout)
+              .foregroundStyle(theme.colors.textSecondary)
+            Button(isGeneratingCard ? "生成中..." : "生成结构化阅读卡") {
+              generateStructuredCard()
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isGeneratingCard || item == nil)
+          }
+          .gistCard()
+
+          VStack(alignment: .leading, spacing: theme.spacing.md) {
+            Text("论文深度稿")
+              .font(theme.fonts.headline)
+              .foregroundStyle(theme.colors.textPrimary)
+            Text("对重要论文生成一份可进入项目页“科研产出中心”的深度解读稿。")
+              .font(theme.fonts.callout)
+              .foregroundStyle(theme.colors.textSecondary)
+            Button(isGeneratingArtifact ? "生成中..." : "生成深度解读稿") {
+              generateArtifact()
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isGeneratingArtifact || item == nil)
+
+            if let generatedArtifact {
+              VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                Text(generatedArtifact.title)
+                  .font(theme.fonts.footnote.weight(.semibold))
+                  .foregroundStyle(theme.colors.textPrimary)
+                Text(generatedArtifact.paperArtifact.oneSentenceSummary ?? generatedArtifact.title)
+                  .font(theme.fonts.footnote)
+                  .foregroundStyle(theme.colors.textSecondary)
+                if let projectID = item?.projects?.first?.id {
+                  Button("前往项目科研产出中心") {
+                    sheetManager.dismiss()
+                    router.navigateToProject(projectID)
+                  }
+                  .font(theme.fonts.caption1)
+                  .foregroundStyle(theme.colors.textLink)
+                }
+              }
+            }
+          }
+          .gistCard()
+
+          Text(statusMessage)
+            .font(theme.fonts.footnote)
+            .foregroundStyle(theme.colors.textTertiary)
+        }
+        .padding(theme.spacing.lg)
+      }
+      .background(theme.colors.bgSheet)
+      .navigationTitle("AI 工作台")
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Button("关闭") {
+            sheetManager.dismiss()
+          }
+        }
+      }
+      .task {
+        item = repository.findByID(itemID)
+      }
+    }
+  }
+
+  private func generateStructuredCard() {
+    guard let item else { return }
+    isGeneratingCard = true
+    statusMessage = "正在用 mock AITask 生成结构化阅读卡..."
+
+    Task { @MainActor in
+      defer { isGeneratingCard = false }
+      do {
+        let result = try await aiClient.generateStructuredCard(for: item)
+        item.structuredCardResult = result
+        item.researchQuestion = result.researchQuestion?.content
+        item.methodology = result.methodology?.content
+        item.datasetInfo = result.datasetInfo?.content
+        item.keyFindings = result.keyFindings?.content
+        item.limitations = result.limitations?.content
+        item.reusePoints = result.reusePoints?.content
+        item.aiInterpretationStatus = .completed
+        item.aiInterpretationDate = Date()
+        item.aiInterpretationResult = "已由 mock AITask 生成结构化阅读卡，可用于项目聚合与后续深度稿。"
+        try repository.update(item)
+        self.item = repository.findByID(itemID)
+        statusMessage = "结构化阅读卡已写入本地数据。"
+      } catch {
+        statusMessage = "生成失败：\(error.localizedDescription)"
+      }
+    }
+  }
+
+  private func generateArtifact() {
+    guard let item else { return }
+    isGeneratingArtifact = true
+    statusMessage = "正在生成论文深度稿，并准备写入项目科研产出中心..."
+
+    Task { @MainActor in
+      defer { isGeneratingArtifact = false }
+      do {
+        let envelope = try await aiClient.generatePaperArtifact(for: item)
+        let artifact = StoredAIArtifact(
+          kind: .paperDeepDive,
+          sourceItemID: item.id,
+          sourceItemTitle: item.title,
+          title: envelope.title,
+          createdAt: Date(),
+          markdownContent: envelope.markdownContent,
+          paperArtifact: envelope.structuredJSON
+        )
+        item.appendStoredArtifact(artifact)
+        item.aiInterpretationStatus = .completed
+        item.aiInterpretationResult = envelope.structuredJSON.oneSentenceSummary ?? "已生成论文深度稿。"
+        item.aiInterpretationDate = Date()
+        try repository.update(item)
+        generatedArtifact = artifact
+        self.item = repository.findByID(itemID)
+        statusMessage = "深度稿已保存，可在项目页科研产出中心查看。"
+      } catch {
+        statusMessage = "生成失败：\(error.localizedDescription)"
+      }
     }
   }
 }

@@ -34,6 +34,7 @@ struct ProjectDetailView: View {
 
           researchBackgroundSection
           aiSummarySection
+          artifactCenterSection
           todoSection
             .id("projectTodoSection")
 
@@ -195,6 +196,48 @@ struct ProjectDetailView: View {
     .gistCard()
   }
 
+  private var artifactCenterSection: some View {
+    VStack(alignment: .leading, spacing: theme.spacing.md) {
+      HStack {
+        Text("科研产出中心")
+          .font(theme.fonts.headline)
+          .foregroundStyle(theme.colors.textPrimary)
+        Spacer()
+        Text("\(artifactSummaries.count) 篇")
+          .font(theme.fonts.caption2)
+          .foregroundStyle(theme.colors.textTertiary)
+      }
+
+      if artifactSummaries.isEmpty {
+        Text("先在重要论文详情页生成深度解读稿，这里会自动聚合产出。")
+          .font(theme.fonts.callout)
+          .foregroundStyle(theme.colors.textSecondary)
+      } else {
+        ForEach(artifactSummaries) { summary in
+          Button {
+            router.libraryPath.append(GistNavigationDestination.itemDetail(summary.itemID))
+          } label: {
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+              Text(summary.title)
+                .font(theme.fonts.body)
+                .foregroundStyle(theme.colors.textPrimary)
+              Text(summary.oneSentenceSummary)
+                .font(theme.fonts.footnote)
+                .foregroundStyle(theme.colors.textSecondary)
+                .lineLimit(2)
+              Text("来自 \(summary.itemTitle) · \(summary.createdAt.formatted(.dateTime.month().day().hour().minute()))")
+                .font(theme.fonts.caption2)
+                .foregroundStyle(theme.colors.textTertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+          }
+          .buttonStyle(.plain)
+        }
+      }
+    }
+    .gistCard()
+  }
+
   private var todoSection: some View {
     VStack(alignment: .leading, spacing: theme.spacing.md) {
       HStack {
@@ -294,6 +337,22 @@ struct ProjectDetailView: View {
     guard let generatedAt = project?.aiSummaryDate else { return "未生成" }
     return generatedAt.formatted(.dateTime.month().day().hour().minute())
   }
+
+  private var artifactSummaries: [ProjectArtifactSummary] {
+    items.flatMap { item in
+      item.storedArtifacts.map { artifact in
+        ProjectArtifactSummary(
+          id: artifact.id,
+          itemID: item.id,
+          itemTitle: item.title,
+          title: artifact.title,
+          oneSentenceSummary: artifact.paperArtifact.oneSentenceSummary ?? "已生成深度稿",
+          createdAt: artifact.createdAt
+        )
+      }
+    }
+    .sorted { $0.createdAt > $1.createdAt }
+  }
 }
 
 private struct ProjectTodoItem: Identifiable {
@@ -319,4 +378,13 @@ private struct ProjectTodoItem: Identifiable {
   var toggledRawValue: String {
     isDone ? "[ ] \(title)" : "[x] \(title)"
   }
+}
+
+private struct ProjectArtifactSummary: Identifiable {
+  let id: UUID
+  let itemID: UUID
+  let itemTitle: String
+  let title: String
+  let oneSentenceSummary: String
+  let createdAt: Date
 }

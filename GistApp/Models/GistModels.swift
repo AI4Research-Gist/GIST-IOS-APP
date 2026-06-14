@@ -266,3 +266,169 @@ final class CaptureInboxItem {
     self.rawText = rawText
   }
 }
+
+struct CardField: Codable, Hashable {
+  var content: String
+  var confidence: Double
+  var sourceQuote: String?
+  var isOriginal: Bool
+}
+
+struct StructuredCardResult: Codable, Hashable {
+  var researchQuestion: CardField?
+  var methodology: CardField?
+  var datasetInfo: CardField?
+  var keyFindings: CardField?
+  var limitations: CardField?
+  var reusePoints: CardField?
+}
+
+struct CompetitionExtractionResult: Codable, Hashable {
+  var competitionName: String?
+  var officialURL: String?
+  var deadlines: [ExtractedDeadline]?
+  var submissionRequirements: [ExtractedSubmissionItem]?
+  var scoringCriteria: [ExtractedScoringCriterion]?
+  var uploadMethod: ExtractedUploadMethod?
+  var eligibility: ExtractedField?
+  var uncertainFields: [String]?
+  var overallConfidence: Double?
+}
+
+struct ExtractedDeadline: Codable, Hashable {
+  var name: String
+  var date: String
+  var timezone: String?
+  var confidence: Double
+  var evidence: String?
+}
+
+struct ExtractedSubmissionItem: Codable, Hashable {
+  var item: String
+  var required: Bool?
+  var format: String?
+  var confidence: Double
+  var evidence: String?
+}
+
+struct ExtractedScoringCriterion: Codable, Hashable {
+  var criterion: String
+  var weight: String?
+  var description: String?
+  var confidence: Double
+  var evidence: String?
+}
+
+struct ExtractedUploadMethod: Codable, Hashable {
+  var platform: String?
+  var url: String?
+  var confidence: Double
+  var evidence: String?
+}
+
+struct ExtractedField: Codable, Hashable {
+  var description: String
+  var confidence: Double
+  var evidence: String?
+}
+
+struct PaperResearchArtifactEnvelope: Codable, Hashable {
+  var artifactType: String
+  var title: String
+  var markdownContent: String
+  var structuredJSON: PaperResearchArtifact
+}
+
+struct PaperResearchArtifact: Codable, Hashable {
+  var metadata: ArtifactMetadata?
+  var oneSentenceSummary: String?
+  var backgroundAndMotivation: BackgroundMotivation?
+  var methodDetails: MethodDetails?
+  var experimentResults: ExperimentResults?
+  var ablation: [String]?
+  var insights: [String]?
+  var limitations: [String]?
+  var relatedWork: [String]?
+  var inspiration: [String]?
+  var rating: ArtifactRating?
+  var relatedPapers: [String]?
+  var notes: String?
+}
+
+struct ArtifactMetadata: Codable, Hashable {
+  var conference: String?
+  var arxiv: String?
+  var code: String?
+  var domain: String?
+  var keywords: String?
+}
+
+struct BackgroundMotivation: Codable, Hashable {
+  var fieldStatus: String?
+  var corePainPoint: String?
+  var solutionDirection: String?
+}
+
+struct MethodDetails: Codable, Hashable {
+  var overallFramework: String?
+  var keyDesign: String?
+  var workflowBreakdown: String?
+}
+
+struct ExperimentResults: Codable, Hashable {
+  var datasets: String?
+  var metrics: String?
+  var baseline: String?
+  var methodResult: String?
+  var improvement: String?
+}
+
+struct ArtifactRating: Codable, Hashable {
+  var novelty: String?
+  var experimentQuality: String?
+  var writingQuality: String?
+  var value: String?
+}
+
+enum StoredAIArtifactKind: String, Codable, Hashable {
+  case paperDeepDive = "paper_deep_dive"
+}
+
+struct StoredAIArtifact: Identifiable, Codable, Hashable {
+  var id: UUID = UUID()
+  var kind: StoredAIArtifactKind
+  var sourceItemID: UUID
+  var sourceItemTitle: String
+  var title: String
+  var createdAt: Date = Date()
+  var markdownContent: String
+  var paperArtifact: PaperResearchArtifact
+}
+
+extension ResearchItem {
+  var structuredCardResult: StructuredCardResult? {
+    get { decodeJSONString(aiStructuredCardJSON, as: StructuredCardResult.self) }
+    set { aiStructuredCardJSON = encodeJSONString(newValue) }
+  }
+
+  var storedArtifacts: [StoredAIArtifact] {
+    get { decodeJSONString(aiInterpretationHistoryJSON, as: [StoredAIArtifact].self) ?? [] }
+    set { aiInterpretationHistoryJSON = encodeJSONString(newValue) }
+  }
+
+  func appendStoredArtifact(_ artifact: StoredAIArtifact) {
+    var next = storedArtifacts
+    next.insert(artifact, at: 0)
+    storedArtifacts = next
+  }
+}
+
+func encodeJSONString<T: Encodable>(_ value: T?) -> String? {
+  guard let value, let data = try? JSONEncoder().encode(value) else { return nil }
+  return String(data: data, encoding: .utf8)
+}
+
+func decodeJSONString<T: Decodable>(_ json: String?, as type: T.Type) -> T? {
+  guard let json, let data = json.data(using: .utf8) else { return nil }
+  return try? JSONDecoder().decode(type, from: data)
+}

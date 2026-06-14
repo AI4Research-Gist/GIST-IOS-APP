@@ -36,6 +36,7 @@ struct GistAppRootView: View {
   }
 }
 
+@MainActor
 private struct GistRootContentView: View {
   let launchConfiguration: GistLaunchConfiguration
   let initialSheet: GistSheetType?
@@ -287,6 +288,7 @@ private struct GistRootContentView: View {
   }
 }
 
+@MainActor
 private struct GistAcceptanceStackOverlay: View {
   @Environment(GistTheme.self) private var theme
   @Environment(GistNavigationRouter.self) private var router
@@ -312,6 +314,7 @@ private struct GistAcceptanceStackOverlay: View {
   }
 }
 
+@MainActor
 private struct GistNavigationStack<Root: View>: View {
   @Binding var path: NavigationPath
   let root: Root
@@ -340,6 +343,7 @@ private struct GistNavigationStack<Root: View>: View {
   }
 }
 
+@MainActor
 private struct GistSheetHost: View {
   let sheet: GistSheetType
 
@@ -347,16 +351,23 @@ private struct GistSheetHost: View {
     switch sheet {
     case .newItem(let projectID):
       NewItemSheet(initialProjectID: projectID)
-    case .aiInterpretation:
-      GistPlaceholderPage(title: "AI 解读", message: "阶段 1 保留 Sheet 入口，真实 AI 在阶段 3 接入。")
+    case .aiInterpretation(let itemID):
+      AIInterpretationWorkspace(itemID: itemID)
     case .editProject(let projectID):
       EditProjectSheet(projectID: projectID)
     case .addItemToProject(let projectID):
       ProjectAddItemSheet(projectID: projectID)
+    case .competitionReview(let projectID, let rawText, let sourceURL):
+      CompetitionReviewSheet(
+        initialProjectID: projectID,
+        initialRawText: rawText,
+        initialSourceURL: sourceURL
+      )
     }
   }
 }
 
+@MainActor
 struct GistPlaceholderPage: View {
   @Environment(GistTheme.self) private var theme
   let title: String

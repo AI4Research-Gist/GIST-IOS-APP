@@ -255,6 +255,7 @@ private struct HomeInsightCard: View {
 private struct HomeProjectCard: View {
   @Environment(GistTheme.self) private var theme
   @Environment(GistNavigationRouter.self) private var router
+  @Environment(ProjectRepository.self) private var projectRepository
   let projects: [Project]
 
   var body: some View {
@@ -268,16 +269,22 @@ private struct HomeProjectCard: View {
           .foregroundStyle(theme.colors.textSecondary)
       } else {
         ForEach(projects.prefix(3), id: \.id) { project in
+          let stats = projectRepository.stats(for: project)
           Button {
             router.navigateToProject(project.id)
           } label: {
-            HStack {
-              Label(project.name, systemImage: theme.icons.project)
-                .font(theme.fonts.body)
-                .foregroundStyle(theme.colors.textPrimary)
-              Spacer()
-              Text("\(project.researchItems?.count ?? 0) 篇")
-                .font(theme.fonts.footnote)
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+              HStack {
+                Label(project.name, systemImage: theme.icons.project)
+                  .font(theme.fonts.body)
+                  .foregroundStyle(theme.colors.textPrimary)
+                Spacer()
+                Text("\(stats.totalCount) 篇")
+                  .font(theme.fonts.footnote)
+                  .foregroundStyle(theme.colors.textTertiary)
+              }
+              Text("未读 \(stats.unreadCount) · 竞赛 \(stats.competitionCount) · 产出 \(stats.artifactCount)")
+                .font(theme.fonts.caption2)
                 .foregroundStyle(theme.colors.textTertiary)
             }
           }

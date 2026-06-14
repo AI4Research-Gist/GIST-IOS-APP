@@ -53,6 +53,7 @@ enum GistSheetType: Identifiable, Hashable {
   case aiInterpretation(itemID: UUID)
   case editProject(projectID: UUID?)
   case addItemToProject(projectID: UUID)
+  case competitionReview(projectID: UUID?, rawText: String, sourceURL: String?)
 
   var id: String {
     switch self {
@@ -64,6 +65,8 @@ enum GistSheetType: Identifiable, Hashable {
       "editProject-\(projectID?.uuidString ?? "new")"
     case .addItemToProject(let projectID):
       "addItemToProject-\(projectID.uuidString)"
+    case .competitionReview(let projectID, let rawText, _):
+      "competitionReview-\(projectID?.uuidString ?? "none")-\(rawText.hashValue)"
     }
   }
 }

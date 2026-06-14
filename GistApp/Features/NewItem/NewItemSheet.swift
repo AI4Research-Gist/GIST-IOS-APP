@@ -477,7 +477,15 @@ struct CompetitionReviewSheet: View {
       extractionCache?.reviewedAt = Date()
       extractionCache?.updatedAt = Date()
       try? modelContext.save()
-      toastCenter.show(message: "已保存竞赛「\(item.title)」", itemID: item.id)
+      if let projectID = selectedProjectID {
+        toastCenter.show(
+          message: "已保存竞赛「\(item.title)」并加入项目",
+          projectID: projectID,
+          actionLabel: "看项目"
+        )
+      } else {
+        toastCenter.show(message: "已保存竞赛「\(item.title)」", itemID: item.id)
+      }
       sheetManager.dismiss()
     } catch {
       errorMessage = "保存失败：\(error.localizedDescription)"

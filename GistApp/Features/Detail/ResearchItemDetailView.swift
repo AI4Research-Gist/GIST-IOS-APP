@@ -7,6 +7,7 @@ struct ResearchItemDetailView: View {
   @Environment(ProjectRepository.self) private var projectRepository
   @Environment(GistNavigationRouter.self) private var router
   @Environment(GistSheetManager.self) private var sheetManager
+  @Environment(GistToastCenter.self) private var toastCenter
   @Environment(GistDataChangeCenter.self) private var dataChangeCenter
   let itemID: UUID
   @State private var item: ResearchItem?
@@ -243,6 +244,7 @@ struct ResearchItemDetailView: View {
     projects.append(project)
     item.projects = projects
     try? repository.update(item)
+    toastCenter.show(message: "已归入项目「\(project.name)」", projectID: project.id)
     self.item = item
   }
 

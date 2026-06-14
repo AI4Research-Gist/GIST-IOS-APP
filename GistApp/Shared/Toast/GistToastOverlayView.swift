@@ -13,9 +13,9 @@ struct GistToastOverlayView: View {
           .foregroundStyle(theme.colors.textPrimary)
           .lineLimit(2)
         Spacer(minLength: theme.spacing.sm)
-        if let itemID = toast.itemID {
-          Button("查看") {
-            router.navigateToItem(itemID)
+        if let destination = toast.destination {
+          Button(toastActionLabel(for: toast)) {
+            handleToastAction(destination)
             toastCenter.dismiss()
           }
           .font(theme.fonts.footnote)
@@ -41,6 +41,31 @@ struct GistToastOverlayView: View {
       .transition(.move(edge: .top).combined(with: .opacity))
       .accessibilityElement(children: .combine)
       .accessibilityLabel(toast.message)
+    }
+  }
+
+  @MainActor
+  private func handleToastAction(_ destination: GistToastDestination) {
+    switch destination {
+    case .item(let itemID):
+      router.navigateToItem(itemID)
+    case .project(let projectID):
+      router.navigateToProject(projectID)
+    }
+  }
+
+  private func toastActionLabel(for toast: GistToast) -> String {
+    if let actionLabel = toast.actionLabel {
+      return actionLabel
+    }
+
+    return switch toast.destination {
+    case .item:
+      "查看"
+    case .project:
+      "看项目"
+    case nil:
+      "查看"
     }
   }
 }

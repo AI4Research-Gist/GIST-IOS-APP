@@ -74,6 +74,9 @@ enum GistLaunchRoute: Equatable {
   case libraryList(GistLibraryDimension)
   case itemDetail(ResearchItemType)
   case itemAIWorkspace(ResearchItemType)
+  case stage2UnassignedPaper
+  case stage2WorkflowProject
+  case stage2CompetitionProject
   case competitionReview
   case projectDetail
   case projectAddItem
@@ -107,6 +110,12 @@ enum GistLaunchRoute: Equatable {
       self = .itemAIWorkspace(.paper)
     case "detail-article-ai":
       self = .itemAIWorkspace(.article)
+    case "stage2-unassigned-paper":
+      self = .stage2UnassignedPaper
+    case "stage2-workflow-project":
+      self = .stage2WorkflowProject
+    case "stage2-competition-project":
+      self = .stage2CompetitionProject
     case "competition-review":
       self = .competitionReview
     case "project":
@@ -124,6 +133,8 @@ enum GistLaunchRoute: Equatable {
 struct GistLaunchSeedSnapshot {
   var projectID: UUID?
   var itemIDsByType: [ResearchItemType: UUID] = [:]
+  var namedProjectIDs: [String: UUID] = [:]
+  var namedItemIDs: [String: UUID] = [:]
 }
 
 @MainActor
@@ -288,6 +299,13 @@ enum GistAcceptanceBootstrapper {
         .competition: competition.id,
         .voice: voice.id,
         .insight: insight.id,
+      ],
+      namedProjectIDs: [
+        "acceptance-primary": project.id
+      ],
+      namedItemIDs: [
+        "acceptance-paper": paper.id,
+        "acceptance-competition": competition.id
       ]
     )
   }
@@ -499,6 +517,20 @@ enum GistAcceptanceBootstrapper {
         .competition: competition.id,
         .voice: voice.id,
         .insight: insight.id,
+      ],
+      namedProjectIDs: [
+        "workflow": projectWorkflow.id,
+        "competition": projectCompetition.id,
+      ],
+      namedItemIDs: [
+        "workflow-paper": paperMain.id,
+        "workflow-paper-pending": paperPending.id,
+        "workflow-article": article.id,
+        "competition-item": competition.id,
+        "voice-note": voice.id,
+        "insight-note": insight.id,
+        "unassigned-paper": externalPaper.id,
+        "clipboard-article": externalArticle.id,
       ]
     )
   }
